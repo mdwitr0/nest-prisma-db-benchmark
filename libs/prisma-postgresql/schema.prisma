@@ -1,0 +1,147 @@
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl"]
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
+  output          = "./src/lib/generated/prisma-client"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../../docs/images/ERD.svg"
+  theme    = "dark"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_DATABASE_URL")
+}
+
+enum MovieType {
+  ANIMATED_SERIES // Мульт-сериал
+  ANIME // Аниме
+  CARTOON // Мультфильм
+  MINI_SERIES // Мини-сериал
+  MOVIE // Фильм
+  TV_SERIES // Сериал
+  TV_SHOW // ТВ-Шоу
+  VIDEO // Видео
+}
+
+// Person enums
+enum ProfessionType {
+  ACTOR // Актер
+  NOT_LISTED_IN_THE_CREDITS // В титрах не указаны
+  BAND_CHRONICLE // Группа: Хроника
+  BAND_PLAYING_THEMSELVES // Группа: играют самих себя
+  DIRECTOR // Режиссер
+  COMPOSER // Композитор
+  EDITOR // Монтажер
+  VOICE_DIRECTOR // Звукорежиссер
+  OPERATOR // Оператор
+  TRANSLATOR // Переводчик
+  PRODUCER // Продюсер
+  WRITER // Сценарист
+  PRODUCTION_DESIGNER // Художник-постановщик
+  PRODUCER_USSR // Продюссер СССР
+}
+
+enum PersonSex {
+  MALE // Мужской
+  FEMALE // Женский
+}
+
+// Movie types
+model MovieNameItem {
+  id      Int    @id @default(autoincrement())
+  name    String
+  Movie   Movie? @relation(fields: [movieId], references: [id])
+  movieId Int?
+}
+
+model MovieExternalId {
+  id    Int     @id @default(autoincrement())
+  imdb  String?
+  tmdb  Int?
+  kpHD  String?
+  Movie Movie[]
+}
+
+model MovieRating {
+  id                 Int     @id @default(autoincrement())
+  kp                 Float
+  imdb               Float
+  await              Float?
+  filmCritics        Float?
+  russianFilmCritics Float?
+  tmdb               Float?
+  Movie              Movie[]
+}
+
+// Person types
+model Person {
+  id          Int              @id @default(autoincrement())
+  kpId        Int              @unique
+  // String properties
+  enName      String?
+  name        String?
+  sex         PersonSex?
+  // Int properties
+  age         Int?
+  countAwards Int?
+  growth      Int?
+  // Enum properties
+  profession  ProfessionType[]
+  // Date proprties
+  birthday    DateTime?        @db.Date
+  death       DateTime?        @db.Date
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  // Relations
+  movies      MovieOnPerson[]
+}
+
+model MovieOnPerson {
+  id          Int              @id @default(autoincrement())
+  kpId        Int              @unique
+  movieKpId   Int
+  // String properties
+  description String
+  // Enum properties
+  profession  ProfessionType[]
+  // Date proprties
+  assignedAt  DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  // Relations
+
+  Person   Person? @relation(fields: [personId], references: [id])
+  personId Int?
+  Movie    Movie?  @relation(fields: [movieId], references: [id])
+  movieId  Int?
+}
+
+model Movie {
+  // Id properties
+  id          Int              @id @default(autoincrement())
+  kpId        Int              @unique
+  externalId  MovieExternalId? @relation(fields: [movieExternalIdId], references: [id])
+  // String properties
+  name        String?
+  names       String[]
+  enName      String?
+  description String?
+  //Int properties
+  year        Int?
+  // Enum properties
+  type        MovieType?
+  genres      MovieNameItem[]
+  // Type properties
+  rating      MovieRating      @relation(fields: [movieRatingId], references: [id])
+
+  // Date proprties
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  // Relations
+  persons           MovieOnPerson[]
+  movieExternalIdId Int?
+  movieRatingId     Int
+}
