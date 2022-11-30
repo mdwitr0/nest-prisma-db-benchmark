@@ -1,1 +1,1 @@
-export * from './lib/prisma-mongodb.module';
+export * from './generated/client/index'

@@ -1,1 +1,1 @@
-export * from './lib/prisma-postgresql.module';
+export * from './generated/client/index'

@@ -2,12 +2,12 @@ generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "linux-musl"]
   previewFeatures = ["fullTextIndex", "fullTextSearch"]
-  output          = "./src/lib/generated/prisma-client"
+  output          = "./src/generated/client"
 }
 
 generator erd {
   provider = "prisma-erd-generator"
-  output   = "../../docs/images/ERD.svg"
+  output   = "../../docs/images/mongo-erd.svg"
   theme    = "dark"
 }
 

@@ -15,10 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@prisma-mongodb": [
+      "@prisma/mongodb": [
         "libs/prisma-mongodb/src/index.ts"
       ],
-      "@prisma-postgresql": [
+      "@prisma/postgresql": [
         "libs/prisma-postgresql/src/index.ts"
       ]
     }
