@@ -9,6 +9,8 @@
     "db:gen": "prisma generate --schema ./libs/prisma-${SERVICE}/schema.prisma",
     "db:pull": "prisma db pull --schema ./libs/prisma-${SERVICE}/schema.prisma",
     "db:push": "prisma db push --schema ./libs/prisma-${SERVICE}/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema ./libs/prisma-${SERVICE}/schema.prisma",
+    "db:migrate:dev": "prisma migrate dev --schema ./libs/prisma-${SERVICE}/schema.prisma --",
     "postinstall": "SERVICE=postgresql npm run db:gen && SERVICE=mongodb npm rundb:gen"
   },
   "private": true,
