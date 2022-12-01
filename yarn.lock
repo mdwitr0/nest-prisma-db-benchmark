@@ -1117,14 +1117,7 @@
   dependencies:
     esquery "^1.0.1"
 
-"@prisma/client@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-4.0.0.tgz#ed2f46930a1da0d8ae88d7965485973576b04270"
-  integrity sha512-g1h2OGoRo7anBVQ9Cw3gsbjwPtvf7i0pkGxKeZICtwkvE5CZXW+xZF4FZdmrViYkKaAShbISL0teNpu9ecpf4g==
-  dependencies:
-    "@prisma/engines-version" "3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11"
-
-"@prisma/client@^4.6.0":
+"@prisma/client@^4.6.0", "@prisma/client@^4.7.0":
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/@prisma/client/-/client-4.7.0.tgz#ac57a5f7c4ad3126e44d99edc393031dfabb8d8a"
   integrity sha512-keXMa0oJWJGOzMEFKp+CEgzJPwnOtGSrnTWw6qMYxnypYrRFdNxqyA06EzELZexBhgM4oLooZ1jDJ3iy46wExA==
@@ -1139,11 +1132,6 @@
     "@types/debug" "4.1.7"
     debug "4.3.4"
     strip-ansi "6.0.1"
-
-"@prisma/engines-version@3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11":
-  version "3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11"
-  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-3.16.0-49.da41d2bb3406da22087b849f0e911199ba4fbf11.tgz#4b5efe5eee2feef12910e4627a572cd96ed83236"
-  integrity sha512-PiZhdD624SrYEjyLboI0X7OugNbxUzDJx9v/6ldTKuqNDVUCmRH/Z00XwDi/dgM4FlqOSO+YiUsSiSKjxxG8cw==
 
 "@prisma/engines-version@4.7.0-74.39190b250ebc338586e25e6da45e5e783bc8a635":
   version "4.7.0-74.39190b250ebc338586e25e6da45e5e783bc8a635"
