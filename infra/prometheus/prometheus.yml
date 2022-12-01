@@ -3,7 +3,7 @@ scrape_configs:
     scrape_interval: 1s
 
     static_configs:
-      - targets: []
+      - targets: ['host.docker.internal:3112', 'host.docker.internal:3111']
         labels:
           service: 'prisma-metrics'
           group: 'production'

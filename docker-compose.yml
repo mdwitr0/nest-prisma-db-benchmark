@@ -18,6 +18,7 @@ services:
       - mongo:/data/db
     ports:
       - '27018:27017'
+
   prometheus:
     image: prom/prometheus
     volumes:
@@ -27,7 +28,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
     ports:
-      - 9090:9090
+      - '9090:9090'
     extra_hosts:
       - "host.docker.internal:host-gateway"
   grafana:
@@ -35,7 +36,7 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
     ports:
-      - 3000:3000
+      - '3000:3000'
 volumes:
   postgres:
   mongo:
