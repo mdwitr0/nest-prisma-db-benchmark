@@ -12,6 +12,8 @@ export class AppController {
 
   @Get('metrics')
   async metrics() {
-    return this.prisma.$metrics.prometheus();
+    return this.prisma.$metrics.prometheus({
+      globalLabels: { app: 'mongodb' },
+    });
   }
 }
