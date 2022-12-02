@@ -135,7 +135,7 @@ model Movie {
   type        MovieType?
   genres      MovieNameItem[]
   // Type properties
-  rating      MovieRating      @relation(fields: [movieRatingId], references: [id])
+  rating      MovieRating?      @relation(fields: [movieRatingId], references: [id])
 
   // Date proprties
   createdAt         DateTime        @default(now())
@@ -143,5 +143,5 @@ model Movie {
   // Relations
   persons           MovieOnPerson[]
   movieExternalIdId Int?
-  movieRatingId     Int
+  movieRatingId     Int?
 }
