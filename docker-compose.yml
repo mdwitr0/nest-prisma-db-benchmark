@@ -10,14 +10,14 @@ services:
     ports:
       - '5433:5432'
   mongo:
-    image: mongo:latest
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=mongo
-      - MONGO_INITDB_ROOT_PASSWORD=mongo
-    volumes:
-      - mongo:/data/db
-    ports:
-      - '27018:27017'
+      image: prismagraphql/mongo-single-replica:4.4.3-bionic
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: mongo
+        MONGO_INITDB_ROOT_PASSWORD: mongo
+        MONO_INITDB_DATABASE: mongo
+        INIT_WAIT_SEC: 3
+      ports:
+        - '27017:27017'
 
   prometheus:
     image: prom/prometheus
