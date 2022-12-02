@@ -35,6 +35,12 @@ services:
     image: grafana/grafana
     volumes:
       - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+    environment:
+      - TZ="Europe/Moscow"
+    networks:
+      - default
     ports:
       - '3000:3000'
 volumes:
