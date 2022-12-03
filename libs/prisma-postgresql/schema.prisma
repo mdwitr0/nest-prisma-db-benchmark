@@ -59,22 +59,26 @@ model MovieNameItem {
 }
 
 model MovieExternalId {
-  id    Int     @id @default(autoincrement())
-  imdb  String?
-  tmdb  Int?
-  kpHD  String?
-  Movie Movie[]
+  id   Int     @id @default(autoincrement())
+  imdb String?
+  tmdb Int?
+  kpHD String?
+
+  Movie   Movie? @relation(fields: [movieId], references: [id])
+  movieId Int?   @unique
 }
 
 model MovieRating {
-  id                 Int     @id @default(autoincrement())
-  kp                 Float
-  imdb               Float
+  id                 Int    @id @default(autoincrement())
+  kp                 Float?
+  imdb               Float?
   await              Float?
   filmCritics        Float?
   russianFilmCritics Float?
   tmdb               Float?
-  Movie              Movie[]
+
+  movie   Movie? @relation(fields: [movieId], references: [id])
+  movieId Int?   @unique
 }
 
 // Person types
@@ -123,7 +127,7 @@ model Movie {
   // Id properties
   id          Int              @id @default(autoincrement())
   kpId        Int              @unique
-  externalId  MovieExternalId? @relation(fields: [movieExternalIdId], references: [id])
+  externalId  MovieExternalId?
   // String properties
   name        String?
   names       String[]
@@ -135,13 +139,11 @@ model Movie {
   type        MovieType?
   genres      MovieNameItem[]
   // Type properties
-  rating      MovieRating?      @relation(fields: [movieRatingId], references: [id])
+  rating      MovieRating?
 
   // Date proprties
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
   // Relations
-  persons           MovieOnPerson[]
-  movieExternalIdId Int?
-  movieRatingId     Int?
+  persons   MovieOnPerson[]
 }

@@ -1,5 +1,8 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
+import { Id, Movie } from './movie.interface';
+import { Observable } from 'rxjs';
+import { PaginatedResponse } from './response.interface';
 
 export type ApiClientModuleOptions = {
   apiKey?: string;

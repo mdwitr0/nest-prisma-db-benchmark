@@ -62,8 +62,8 @@ type MovieExternalId {
 }
 
 type MovieRating {
-  kp                 Float
-  imdb               Float
+  kp                 Float?
+  imdb               Float?
   await              Float?
   filmCritics        Float?
   russianFilmCritics Float?
