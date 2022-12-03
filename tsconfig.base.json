@@ -15,9 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@kinopoiskdev-client": ["libs/kinopoiskdev-client/src/index.ts"],
       "@decorators": ["libs/decorators/src/index.ts"],
       "@dto": ["libs/dto/src/index.ts"],
+      "@kinopoiskdev-client": ["libs/kinopoiskdev-client/src/index.ts"],
+      "@utils": ["libs/utils/src/index.ts"],
       "@prisma/mongodb": ["libs/prisma-mongodb/src/index.ts"],
       "@prisma/postgresql": ["libs/prisma-postgresql/src/index.ts"]
     }
