@@ -86,18 +86,12 @@ export class ApiClientService {
   findMovieById(request: Id): Observable<Movie> {
     return this.get<Movie>('/movie', {
       params: { search: request.id, field: 'id' },
-    }).pipe(
-      map((res) => res.data),
-      map((movie) => movie as Movie)
-    );
+    }).pipe(map((res) => res.data));
   }
 
   fundMovieAll(request: Request): Observable<PaginatedResponse<Movie[]>> {
     return this.get<PaginatedResponse<Movie[]>>('/movie', {
       params: request,
-    }).pipe(
-      map((res) => res.data),
-      map((res) => res as PaginatedResponse<Movie[]>)
-    );
+    }).pipe(map((res) => res.data));
   }
 }
