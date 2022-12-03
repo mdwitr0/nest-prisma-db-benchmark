@@ -15,12 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@prisma/mongodb": [
-        "libs/prisma-mongodb/src/index.ts"
+      "@kinopoiskdev-client": [
+        "libs/kinopoiskdev-client/src/index.ts"
       ],
-      "@prisma/postgresql": [
-        "libs/prisma-postgresql/src/index.ts"
-      ]
+      "@prisma/mongodb": ["libs/prisma-mongodb/src/index.ts"],
+      "@prisma/postgresql": ["libs/prisma-postgresql/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
