@@ -58,9 +58,18 @@ export class AppController {
             genres: true,
             rating: true,
             externalId: true,
+            persons: true,
           },
         })
       )
     );
+  }
+
+  @Get('find/:id')
+  findById(@Param('id') id: number): Promise<Movie> {
+    return this.prisma.movie.findUnique({
+      where: { kpId: id },
+      include: { genres: true, rating: true, externalId: true, persons: true },
+    });
   }
 }
