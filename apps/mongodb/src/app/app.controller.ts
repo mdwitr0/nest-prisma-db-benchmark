@@ -47,12 +47,60 @@ export class AppController {
             if (movieFromDb) {
               return this.prisma.movie.update({
                 where: { kpId: movie.kpId },
-                data: movie,
+                data: {
+                  ...movie,
+                  persons: {
+                    connectOrCreate: movie.persons.map((person) => {
+                      const { description, ...p } = person;
+                      return {
+                        where: { kpId: person.kpId },
+                        create: {
+                          kpId: person.kpId,
+                          movieKpId: movie.kpId,
+                          description,
+                          profession: person.profession,
+                          person: {
+                            connectOrCreate: {
+                              where: { kpId: person.kpId },
+                              create: {
+                                ...p,
+                              },
+                            },
+                          },
+                        },
+                      };
+                    }),
+                  },
+                },
                 include: { persons: true },
               });
             } else {
               return this.prisma.movie.create({
-                data: movie,
+                data: {
+                  ...movie,
+                  persons: {
+                    connectOrCreate: movie.persons.map((person) => {
+                      const { description, ...p } = person;
+                      return {
+                        where: { kpId: person.kpId },
+                        create: {
+                          kpId: person.kpId,
+                          movieKpId: movie.kpId,
+                          description,
+                          profession: person.profession,
+                          person: {
+                            connectOrCreate: {
+                              where: { kpId: person.kpId },
+                              create: {
+                                ...p,
+                              },
+                            },
+                          },
+                        },
+                      };
+                    }),
+                  },
+                },
                 include: { persons: true },
               });
             }
@@ -88,12 +136,60 @@ export class AppController {
               if (movieFromDb) {
                 return this.prisma.movie.update({
                   where: { kpId: movie.kpId },
-                  data: movie,
+                  data: {
+                    ...movie,
+                    persons: {
+                      connectOrCreate: movie.persons.map((person) => {
+                        const { description, ...p } = person;
+                        return {
+                          where: { kpId: person.kpId },
+                          create: {
+                            kpId: person.kpId,
+                            movieKpId: movie.kpId,
+                            description,
+                            profession: person.profession,
+                            person: {
+                              connectOrCreate: {
+                                where: { kpId: person.kpId },
+                                create: {
+                                  ...p,
+                                },
+                              },
+                            },
+                          },
+                        };
+                      }),
+                    },
+                  },
                   include: { persons: true },
                 });
               } else {
                 return this.prisma.movie.create({
-                  data: movie,
+                  data: {
+                    ...movie,
+                    persons: {
+                      connectOrCreate: movie.persons.map((person) => {
+                        const { description, ...p } = person;
+                        return {
+                          where: { kpId: person.kpId },
+                          create: {
+                            kpId: person.kpId,
+                            movieKpId: movie.kpId,
+                            description,
+                            profession: person.profession,
+                            person: {
+                              connectOrCreate: {
+                                where: { kpId: person.kpId },
+                                create: {
+                                  ...p,
+                                },
+                              },
+                            },
+                          },
+                        };
+                      }),
+                    },
+                  },
                   include: { persons: true },
                 });
               }

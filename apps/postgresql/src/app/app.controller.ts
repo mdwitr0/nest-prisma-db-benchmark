@@ -59,6 +59,28 @@ export class AppController {
                 create: { ...genre },
               })),
             },
+            persons: {
+              connectOrCreate: movie.persons.map((person) => {
+                const { description, ...p } = person;
+                return {
+                  where: { kpId: person.kpId },
+                  create: {
+                    kpId: person.kpId,
+                    movieKpId: movie.kpId,
+                    description,
+                    profession: person.profession,
+                    person: {
+                      connectOrCreate: {
+                        where: { kpId: person.kpId },
+                        create: {
+                          ...p,
+                        },
+                      },
+                    },
+                  },
+                };
+              }),
+            },
           },
           include: {
             genres: true,
@@ -116,6 +138,28 @@ export class AppController {
                         update: { ...genre },
                       })),
                     },
+                    persons: {
+                      connectOrCreate: movie.persons.map((person) => {
+                        const { description, ...p } = person;
+                        return {
+                          where: { kpId: person.kpId },
+                          create: {
+                            kpId: person.kpId,
+                            movieKpId: movie.kpId,
+                            description,
+                            profession: person.profession,
+                            person: {
+                              connectOrCreate: {
+                                where: { kpId: person.kpId },
+                                create: {
+                                  ...p,
+                                },
+                              },
+                            },
+                          },
+                        };
+                      }),
+                    },
                   },
                   include: {
                     persons: true,
@@ -143,6 +187,28 @@ export class AppController {
                         where: { name: genre.name },
                         create: { ...genre },
                       })),
+                    },
+                    persons: {
+                      connectOrCreate: movie.persons.map((person) => {
+                        const { description, ...p } = person;
+                        return {
+                          where: { kpId: person.kpId },
+                          create: {
+                            kpId: person.kpId,
+                            movieKpId: movie.kpId,
+                            description,
+                            profession: person.profession,
+                            person: {
+                              connectOrCreate: {
+                                where: { kpId: person.kpId },
+                                create: {
+                                  ...p,
+                                },
+                              },
+                            },
+                          },
+                        };
+                      }),
                     },
                   },
                   include: {
