@@ -48,16 +48,10 @@ export class AppController {
               },
             },
             genres: {
-              connectOrCreate: [
-                {
-                  where: {
-                    name: movie.genres[0].name,
-                  },
-                  create: {
-                    name: movie.genres[0].name,
-                  },
-                },
-              ],
+              connectOrCreate: movie.genres.map((genre) => ({
+                where: { name: genre.name },
+                create: { ...genre },
+              })),
             },
           },
           include: {
