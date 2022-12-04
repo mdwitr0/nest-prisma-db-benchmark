@@ -4,7 +4,7 @@ import {
   ProfessionType as PostgresProfessionType,
   PersonSex as PostgresPersonSex,
 } from '@prisma/postgresql';
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { ParseValue, SetDefaultValue } from '@decorators';
 import {
   ProfessionType as MongoProfessionType,
@@ -33,10 +33,10 @@ export class KpToMoviePersonDto<T = Name>
 
   @Expose()
   @SetDefaultValue(null)
-  description: string;
+  description: string | null;
 
   @Expose()
-  @SetDefaultValue(
+  @Transform(() =>
     faker.helpers.arrayElement(Object.values(MongoProfessionType))
   )
   profession: (MongoProfessionType | PostgresProfessionType)[];
