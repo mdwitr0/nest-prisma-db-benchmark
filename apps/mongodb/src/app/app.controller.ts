@@ -1,15 +1,10 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 
 import { AppService } from './app.service';
-import { Movie, MovieType, PrismaMongodbService } from '@prisma/mongodb';
-import { faker } from '@faker-js/faker';
-import {
-  ApiClientModule,
-  ApiClientService,
-  Movie as KpMovie,
-} from '@kinopoiskdev-client';
-import { lastValueFrom, map } from 'rxjs';
-import { KpToMovieDto } from '../../../../libs/dto/src/lib/kp-to-movie.dto';
+import { Movie, PrismaMongodbService } from '@prisma/mongodb';
+import { ApiClientService } from '@kinopoiskdev-client';
+import { map, mergeMap, Observable } from 'rxjs';
+import { KpToMovieDto } from '@dto';
 import { plainToInstance } from 'class-transformer';
 
 @Controller()
@@ -28,20 +23,20 @@ export class AppController {
   }
 
   @Get('create/:id')
-  async create(@Param('id') id: number) {
-    const movie$ = this.api
-      .findMovieById({ id })
-      .pipe(
-        map((movie) =>
-          plainToInstance(KpToMovieDto, movie, {
-            excludeExtraneousValues: true,
-          })
-        )
-      );
-    const movie = await lastValueFrom(movie$);
-    return this.prisma.movie.create({
-      data: movie,
-    });
-    // return this.prisma.mongodb.create({ data });
+  create(@Param('id') id: number): Observable<Movie> {
+    const movie$ = this.api.findMovieById({ id }).pipe(
+      map((movie) =>
+        plainToInstance(KpToMovieDto, movie, {
+          excludeExtraneousValues: true,
+        })
+      )
+    );
+    return movie$.pipe(
+      mergeMap((movie) =>
+        this.prisma.movie.create({
+          data: movie,
+        })
+      )
+    );
   }
 }
