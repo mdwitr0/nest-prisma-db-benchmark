@@ -13,6 +13,7 @@ import { KpTypesToMovieEnum } from '@enum';
 import { KpToMovieNameItemDto } from './kp-to-movie-name-item.dto';
 import { KpToMovieRatingDto } from './kp-to-movie-rating.dto';
 import { KpToExternalIdDto } from './kp-to-movie-external-id.dto';
+import { KpToMoviePersonDto } from './kp-to-movie-person.dto';
 
 export class KpToMovieDto<T = KpMovie>
   implements Partial<MongoMovie>, Partial<PostgresMovie>
@@ -60,6 +61,11 @@ export class KpToMovieDto<T = KpMovie>
   @SetDefaultValue(null)
   @Type(() => KpToExternalIdDto)
   externalId: KpToExternalIdDto;
+
+  @Expose()
+  @SetDefaultValue([])
+  @Type(() => KpToMoviePersonDto)
+  persons: KpToMoviePersonDto[];
 
   constructor(partial: Partial<KpToMovieDto<T>>) {
     Object.assign(this, partial);
