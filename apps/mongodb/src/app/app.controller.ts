@@ -4,7 +4,13 @@ import { AppService } from './app.service';
 import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
 import { ApiClientService } from '@kinopoiskdev-client';
 import { from, map, mergeMap, Observable, range, switchAll } from 'rxjs';
-import {KpToMovieDto, PaginationQueryDto, SearchAllQueryDto} from '@dto';
+import {
+  CreatePaginationQueryDto,
+  KpToMovieDto,
+  PaginationQueryDto,
+  PaginationResponseDto,
+  SearchAllQueryDto,
+} from '@dto';
 import { plainToInstance } from 'class-transformer';
 import { TransformPipe } from '@pipes';
 
@@ -56,13 +62,12 @@ export class AppController {
     );
   }
 
-  @Get('create-or-update/all/:limit(\\d+)/:start(\\d+)/:end(\\d+)')
+  @Get('create-or-update/all')
   createOrUpdateAll(
-    @Param('limit', ParseIntPipe) limit: number,
-    @Param('start', ParseIntPipe) start: number,
-    @Param('end', ParseIntPipe) end: number
+    @Query(TransformPipe) pagination: CreatePaginationQueryDto
   ): { message: string } {
-    const range$ = range(start, end);
+    const { limit, page, end } = pagination;
+    const range$ = range(page, end);
 
     range$.subscribe((page) => {
       const movies$ = this.api.fundMovieAll({ limit, page }).pipe(
@@ -110,20 +115,15 @@ export class AppController {
     });
   }
 
-  @Get('find/all/:limit(\\d+)/:page(\\d+)')
+  @Get('find/all')
   findAll(
-    @Query() pagination: PaginationQueryDto,
+    @Query(TransformPipe) pagination: PaginationQueryDto,
     @Query(TransformPipe)
     query: SearchAllQueryDto<
       Prisma.MovieWhereInput,
       Prisma.Enumerable<Prisma.MovieOrderByWithRelationInput>
     >
-  ): Observable<{
-    docs: Movie[];
-    count: number;
-    page: number;
-    pages: number;
-  }> {
+  ): Observable<PaginationResponseDto<Movie>> {
     const { limit, page } = pagination;
     const args: Prisma.MovieFindManyArgs = {
       ...query,
