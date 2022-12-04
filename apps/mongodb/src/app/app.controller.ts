@@ -39,4 +39,12 @@ export class AppController {
       )
     );
   }
+
+  @Get('find/:id')
+  findById(@Param('id') id: number): Promise<Movie> {
+    return this.prisma.movie.findUnique({
+      where: { kpId: id },
+      include: { persons: true },
+    });
+  }
 }
