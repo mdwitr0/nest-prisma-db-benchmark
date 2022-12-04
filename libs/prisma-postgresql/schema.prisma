@@ -52,10 +52,9 @@ enum PersonSex {
 
 // Movie types
 model MovieNameItem {
-  id      Int    @id @default(autoincrement())
-  name    String @unique
-  Movie   Movie? @relation(fields: [movieId], references: [id])
-  movieId Int?
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  movies Movie[]
 }
 
 model MovieExternalId {
