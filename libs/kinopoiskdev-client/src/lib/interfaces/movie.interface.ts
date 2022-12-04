@@ -161,10 +161,12 @@ export interface Id {
 }
 
 export interface Request {
-  field: string[];
-  search: string[];
-  sortField: string[];
-  sortType: string[];
+  field?: string[];
+  search?: string[];
+  sortField?: string[];
+  sortType?: string[];
+  page?: number;
+  limit?: number;
 }
 
 export interface Movie {

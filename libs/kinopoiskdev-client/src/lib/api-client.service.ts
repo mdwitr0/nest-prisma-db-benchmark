@@ -13,6 +13,7 @@ import {
   Id,
   Movie,
   PaginatedResponse,
+  Request,
 } from './interfaces';
 
 export class ApiClientService {
@@ -89,9 +90,24 @@ export class ApiClientService {
     }).pipe(map((res) => res.data));
   }
 
-  fundMovieAll(request: Request): Observable<PaginatedResponse<Movie[]>> {
-    return this.get<PaginatedResponse<Movie[]>>('/movie', {
-      params: request,
+  fundMovieAll(request: Request): Observable<PaginatedResponse<Movie>> {
+    return this.get<PaginatedResponse<Movie>>('/movie', {
+      params: {
+        ...request,
+        selectFields: [
+          'id',
+          'name',
+          'names',
+          'enName',
+          'year',
+          'description',
+          'type',
+          'genres',
+          'rating',
+          'externalId',
+          'persons',
+        ].join(' '),
+      },
     }).pipe(map((res) => res.data));
   }
 }

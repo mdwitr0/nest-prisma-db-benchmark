@@ -1,11 +1,22 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { Movie, PrismaMongodbService } from '@prisma/mongodb';
 import { ApiClientService } from '@kinopoiskdev-client';
-import { map, mergeMap, Observable } from 'rxjs';
+import {
+  from,
+  lastValueFrom,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  range,
+  switchAll,
+  tap,
+} from 'rxjs';
 import { KpToMovieDto } from '@dto';
 import { plainToInstance } from 'class-transformer';
+import { logger } from 'nx/src/utils/logger';
 
 @Controller()
 export class AppController {
@@ -22,22 +33,83 @@ export class AppController {
     });
   }
 
-  @Get('create/:id')
-  create(@Param('id') id: number): Observable<Movie> {
-    const movie$ = this.api.findMovieById({ id }).pipe(
+  @Get('create-or-update/:id(\\d+)')
+  createOrUpdate(@Param('id') id: number): Observable<Movie> {
+    return this.api.findMovieById({ id }).pipe(
       map((movie) =>
         plainToInstance(KpToMovieDto, movie, {
           excludeExtraneousValues: true,
         })
-      )
+      ),
+      mergeMap((movie) => {
+        return from(
+          this.prisma.movie.findUnique({
+            where: { kpId: movie.kpId },
+          })
+        ).pipe(
+          mergeMap((movieFromDb) => {
+            if (movieFromDb) {
+              return this.prisma.movie.update({
+                where: { kpId: movie.kpId },
+                data: movie,
+                include: { persons: true },
+              });
+            } else {
+              return this.prisma.movie.create({
+                data: movie,
+                include: { persons: true },
+              });
+            }
+          })
+        );
+      })
     );
-    return movie$.pipe(
-      mergeMap((movie) =>
-        this.prisma.movie.create({
-          data: movie,
+  }
+
+  @Get('create-or-update/all/:limit(\\d+)/:start(\\d+)/:end(\\d+)')
+  async createOrUpdateAll(
+    @Param('limit', ParseIntPipe) limit: number,
+    @Param('start', ParseIntPipe) start: number,
+    @Param('end', ParseIntPipe) end: number
+  ): Promise<{ message: string }> {
+    const range$ = range(start, end);
+
+    range$.subscribe((page) => {
+      const movies$ = this.api.fundMovieAll({ limit, page }).pipe(
+        map((movies) => movies.docs),
+        switchAll(),
+        map((movie) =>
+          plainToInstance(KpToMovieDto, movie, {
+            excludeExtraneousValues: true,
+          })
+        ),
+        mergeMap((movie) => {
+          return from(
+            this.prisma.movie.findUnique({
+              where: { kpId: movie.kpId },
+            })
+          ).pipe(
+            mergeMap((movieFromDb) => {
+              if (movieFromDb) {
+                return this.prisma.movie.update({
+                  where: { kpId: movie.kpId },
+                  data: movie,
+                  include: { persons: true },
+                });
+              } else {
+                return this.prisma.movie.create({
+                  data: movie,
+                  include: { persons: true },
+                });
+              }
+            })
+          );
         })
-      )
-    );
+      );
+
+      movies$.subscribe();
+    });
+    return { message: 'ok' };
   }
 
   @Get('find/:id')
