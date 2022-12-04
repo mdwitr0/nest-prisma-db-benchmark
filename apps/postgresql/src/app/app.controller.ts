@@ -1,12 +1,18 @@
-import {Controller, Get, Param, Query} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 
-import {AppService} from './app.service';
-import {Movie, PrismaPostgresqlService} from '@prisma/postgresql';
-import {from, map, mergeMap, Observable, range, switchAll,} from 'rxjs';
-import {plainToInstance} from 'class-transformer';
-import {CreatePaginationQueryDto, KpToMovieDto,} from '@dto';
-import {ApiClientService} from '@kinopoiskdev-client';
-import {TransformPipe} from '@pipes';
+import { AppService } from './app.service';
+import { Movie, Prisma, PrismaPostgresqlService } from '@prisma/postgresql';
+import { from, map, mergeMap, Observable, range, switchAll } from 'rxjs';
+import { plainToInstance } from 'class-transformer';
+import {
+  CreatePaginationQueryDto,
+  KpToMovieDto,
+  PaginationQueryDto,
+  PaginationResponseDto,
+  SearchAllQueryDto,
+} from '@dto';
+import { ApiClientService } from '@kinopoiskdev-client';
+import { TransformPipe } from '@pipes';
 
 @Controller()
 export class AppController {
@@ -163,5 +169,39 @@ export class AppController {
       where: { kpId: id },
       include: { genres: true, rating: true, externalId: true, persons: true },
     });
+  }
+
+  @Get('find/all')
+  findAll(
+    @Query(TransformPipe) pagination: PaginationQueryDto,
+    @Query(TransformPipe)
+    query: SearchAllQueryDto<
+      Prisma.MovieWhereInput,
+      Prisma.Enumerable<Prisma.MovieOrderByWithRelationAndSearchRelevanceInput>
+    >
+  ): Observable<PaginationResponseDto<Movie>> {
+    const { limit, page } = pagination;
+    const args: Prisma.MovieFindManyArgs = {
+      ...query,
+      include: { genres: true, rating: true, externalId: true, persons: true },
+      take: limit,
+      skip: (page - 1) * limit,
+    };
+
+    return from(
+      Promise.all([
+        this.prisma.movie.findMany(args),
+        this.prisma.movie.count({
+          where: args.where,
+        }),
+      ])
+    ).pipe(
+      map(([docs, count]) => ({
+        docs,
+        count,
+        page,
+        pages: Math.floor(count / limit),
+      }))
+    );
   }
 }
