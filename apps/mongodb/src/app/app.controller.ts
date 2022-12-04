@@ -1,22 +1,12 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 
 import { AppService } from './app.service';
-import { Movie, PrismaMongodbService } from '@prisma/mongodb';
+import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
 import { ApiClientService } from '@kinopoiskdev-client';
-import {
-  from,
-  lastValueFrom,
-  map,
-  mergeMap,
-  Observable,
-  of,
-  range,
-  switchAll,
-  tap,
-} from 'rxjs';
-import { KpToMovieDto } from '@dto';
+import { from, map, mergeMap, Observable, range, switchAll } from 'rxjs';
+import {KpToMovieDto, PaginationQueryDto, SearchAllQueryDto} from '@dto';
 import { plainToInstance } from 'class-transformer';
-import { logger } from 'nx/src/utils/logger';
+import { TransformPipe } from '@pipes';
 
 @Controller()
 export class AppController {
@@ -67,11 +57,11 @@ export class AppController {
   }
 
   @Get('create-or-update/all/:limit(\\d+)/:start(\\d+)/:end(\\d+)')
-  async createOrUpdateAll(
+  createOrUpdateAll(
     @Param('limit', ParseIntPipe) limit: number,
     @Param('start', ParseIntPipe) start: number,
     @Param('end', ParseIntPipe) end: number
-  ): Promise<{ message: string }> {
+  ): { message: string } {
     const range$ = range(start, end);
 
     range$.subscribe((page) => {
@@ -118,5 +108,44 @@ export class AppController {
       where: { kpId: id },
       include: { persons: true },
     });
+  }
+
+  @Get('find/all/:limit(\\d+)/:page(\\d+)')
+  findAll(
+    @Query() pagination: PaginationQueryDto,
+    @Query(TransformPipe)
+    query: SearchAllQueryDto<
+      Prisma.MovieWhereInput,
+      Prisma.Enumerable<Prisma.MovieOrderByWithRelationInput>
+    >
+  ): Observable<{
+    docs: Movie[];
+    count: number;
+    page: number;
+    pages: number;
+  }> {
+    const { limit, page } = pagination;
+    const args: Prisma.MovieFindManyArgs = {
+      ...query,
+      include: { persons: true },
+      take: limit,
+      skip: (page - 1) * limit,
+    };
+
+    return from(
+      Promise.all([
+        this.prisma.movie.findMany(args),
+        this.prisma.movie.count({
+          where: args.where,
+        }),
+      ])
+    ).pipe(
+      map(([docs, count]) => ({
+        docs,
+        count,
+        page,
+        pages: Math.floor(count / limit),
+      }))
+    );
   }
 }
