@@ -98,7 +98,7 @@ model MovieOnPerson {
   kpId        Int              @unique
   movieKpId   Int
   // String properties
-  description String
+  description String?
   // Enum properties
   profession  ProfessionType[]
   // Date proprties
