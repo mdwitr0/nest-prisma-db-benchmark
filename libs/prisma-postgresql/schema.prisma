@@ -116,7 +116,7 @@ model MovieOnPerson {
   updatedAt   DateTime         @updatedAt
   // Relations
 
-  Person   Person? @relation(fields: [personId], references: [id])
+  person   Person? @relation(fields: [personId], references: [id])
   personId Int?
   Movie    Movie?  @relation(fields: [movieId], references: [id])
   movieId  Int?
