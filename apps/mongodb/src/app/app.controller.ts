@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
@@ -30,7 +30,7 @@ export class AppController {
   }
 
   @Get('create-or-update/:id(\\d+)')
-  createOrUpdate(@Param('id') id: number): Observable<Movie> {
+  createOrUpdate(@Param('id', ParseIntPipe) id: number): Observable<Movie> {
     return this.api.findMovieById({ id }).pipe(
       map((movie) =>
         plainToInstance(KpToMovieDto, movie, {
@@ -204,7 +204,7 @@ export class AppController {
   }
 
   @Get('find/:id')
-  findById(@Param('id') id: number): Promise<Movie> {
+  findById(@Param('id', ParseIntPipe) id: number): Promise<Movie> {
     return this.prisma.movie.findUnique({
       where: { kpId: id },
       include: { persons: true },
