@@ -2,9 +2,7 @@ import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
-import { ApiClientService } from '@kinopoiskdev-client';
 import {
-  auditTime,
   catchError,
   from,
   map,
@@ -17,20 +15,19 @@ import {
 } from 'rxjs';
 import {
   CreatePaginationQueryDto,
-  KpToMovieDto,
   PaginationQueryDto,
   PaginationResponseDto,
   SearchAllQueryDto,
 } from '@dto';
-import { plainToInstance } from 'class-transformer';
 import { TransformPipe } from '@pipes';
+import { MovieAdapter } from '@adapters';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly prisma: PrismaMongodbService,
-    private readonly api: ApiClientService
+    private readonly movieClient: MovieAdapter
   ) {}
 
   @Get('metrics')
@@ -42,12 +39,7 @@ export class AppController {
 
   @Get('create-or-update/:id(\\d+)')
   createOrUpdate(@Param('id', ParseIntPipe) id: number): Observable<Movie> {
-    return this.api.findMovieById({ id }).pipe(
-      map((movie) =>
-        plainToInstance(KpToMovieDto, movie, {
-          excludeExtraneousValues: true,
-        })
-      ),
+    return this.movieClient.findByIdFromKp(id).pipe(
       tap((movie) => console.log('movie: ', movie.kpId)),
       map((movie) => {
         const persons$ = from(movie.persons).pipe(
@@ -118,19 +110,12 @@ export class AppController {
     const range$ = range(page, end);
 
     range$.subscribe((page) => {
-      const movies$ = this.api.fundMovieAll({ limit, page }).pipe(
+      const movies$ = this.movieClient.findManyFromKp({ limit, page }).pipe(
         map((movies) => movies.docs),
         switchAll(),
-        map((movie) =>
-          plainToInstance(KpToMovieDto, movie, {
-            excludeExtraneousValues: true,
-          })
-        ),
-        auditTime(100),
         tap((movie) => console.log('movie: ', movie.kpId)),
         map((movie) => {
           const persons$ = from(movie.persons).pipe(
-            auditTime(100),
             tap((person) => console.log('person: ', person.kpId)),
 
             mergeMap((person) => {
