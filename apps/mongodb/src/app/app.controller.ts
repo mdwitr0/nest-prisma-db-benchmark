@@ -3,7 +3,18 @@ import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
 import { ApiClientService } from '@kinopoiskdev-client';
-import { from, map, mergeMap, Observable, range, switchAll } from 'rxjs';
+import {
+  auditTime,
+  catchError,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  range,
+  switchAll,
+  tap,
+} from 'rxjs';
 import {
   CreatePaginationQueryDto,
   KpToMovieDto,
@@ -37,75 +48,64 @@ export class AppController {
           excludeExtraneousValues: true,
         })
       ),
-      mergeMap((movie) => {
-        return from(
-          this.prisma.movie.findUnique({
-            where: { kpId: movie.kpId },
-          })
-        ).pipe(
-          mergeMap((movieFromDb) => {
-            if (movieFromDb) {
-              return this.prisma.movie.update({
-                where: { kpId: movie.kpId },
-                data: {
-                  ...movie,
-                  persons: {
-                    connectOrCreate: movie.persons.map((person) => {
-                      const { description, ...p } = person;
-                      return {
-                        where: { kpId: person.kpId },
-                        create: {
-                          kpId: person.kpId,
-                          movieKpId: movie.kpId,
-                          description,
-                          profession: person.profession,
-                          person: {
-                            connectOrCreate: {
-                              where: { kpId: person.kpId },
-                              create: {
-                                ...p,
-                              },
-                            },
-                          },
-                        },
-                      };
-                    }),
-                  },
-                },
-                include: { persons: true },
-              });
-            } else {
-              return this.prisma.movie.create({
-                data: {
-                  ...movie,
-                  persons: {
-                    connectOrCreate: movie.persons.map((person) => {
-                      const { description, ...p } = person;
-                      return {
-                        where: { kpId: person.kpId },
-                        create: {
-                          kpId: person.kpId,
-                          movieKpId: movie.kpId,
-                          description,
-                          profession: person.profession,
-                          person: {
-                            connectOrCreate: {
-                              where: { kpId: person.kpId },
-                              create: {
-                                ...p,
-                              },
-                            },
-                          },
-                        },
-                      };
-                    }),
-                  },
-                },
-                include: { persons: true },
-              });
-            }
+      tap((movie) => console.log('movie: ', movie.kpId)),
+      map((movie) => {
+        const persons$ = from(movie.persons).pipe(
+          tap((person) => console.log('person: ', person.kpId)),
+
+          mergeMap((person) => {
+            const { description, ...p } = person;
+
+            return this.prisma.person.upsert({
+              where: { kpId: person.kpId },
+              create: {
+                ...p,
+              },
+              update: {
+                ...p,
+              },
+            });
           })
         );
+        persons$.subscribe();
+        return movie;
+      }),
+      mergeMap((movie) => {
+        const data: Prisma.MovieCreateInput = {
+          ...movie,
+          persons: {
+            connectOrCreate: movie.persons.map((person) => {
+              const { description, ...p } = person;
+              return {
+                where: { kpId: person.kpId },
+                create: {
+                  kpId: person.kpId,
+                  movieKpId: movie.kpId,
+                  description,
+                  profession: person.profession,
+                  person: {
+                    connectOrCreate: {
+                      where: { kpId: person.kpId },
+                      create: {
+                        ...p,
+                      },
+                    },
+                  },
+                },
+              };
+            }),
+          },
+        };
+        return this.prisma.movie.upsert({
+          where: { kpId: movie.kpId },
+          create: data,
+          update: data,
+          include: { persons: true },
+        });
+      }),
+      catchError((err) => {
+        console.log(err);
+        return of(null);
       })
     );
   }
@@ -126,75 +126,62 @@ export class AppController {
             excludeExtraneousValues: true,
           })
         ),
-        mergeMap((movie) => {
-          return from(
-            this.prisma.movie.findUnique({
-              where: { kpId: movie.kpId },
-            })
-          ).pipe(
-            mergeMap((movieFromDb) => {
-              if (movieFromDb) {
-                return this.prisma.movie.update({
-                  where: { kpId: movie.kpId },
-                  data: {
-                    ...movie,
-                    persons: {
-                      connectOrCreate: movie.persons.map((person) => {
-                        const { description, ...p } = person;
-                        return {
-                          where: { kpId: person.kpId },
-                          create: {
-                            kpId: person.kpId,
-                            movieKpId: movie.kpId,
-                            description,
-                            profession: person.profession,
-                            person: {
-                              connectOrCreate: {
-                                where: { kpId: person.kpId },
-                                create: {
-                                  ...p,
-                                },
-                              },
-                            },
-                          },
-                        };
-                      }),
-                    },
-                  },
-                  include: { persons: true },
-                });
-              } else {
-                return this.prisma.movie.create({
-                  data: {
-                    ...movie,
-                    persons: {
-                      connectOrCreate: movie.persons.map((person) => {
-                        const { description, ...p } = person;
-                        return {
-                          where: { kpId: person.kpId },
-                          create: {
-                            kpId: person.kpId,
-                            movieKpId: movie.kpId,
-                            description,
-                            profession: person.profession,
-                            person: {
-                              connectOrCreate: {
-                                where: { kpId: person.kpId },
-                                create: {
-                                  ...p,
-                                },
-                              },
-                            },
-                          },
-                        };
-                      }),
-                    },
-                  },
-                  include: { persons: true },
-                });
-              }
+        auditTime(100),
+        tap((movie) => console.log('movie: ', movie.kpId)),
+        map((movie) => {
+          const persons$ = from(movie.persons).pipe(
+            auditTime(100),
+            tap((person) => console.log('person: ', person.kpId)),
+
+            mergeMap((person) => {
+              const { description, ...p } = person;
+
+              return this.prisma.person.upsert({
+                where: { kpId: person.kpId },
+                create: {
+                  ...p,
+                },
+                update: {
+                  ...p,
+                },
+              });
             })
           );
+          persons$.subscribe();
+          return movie;
+        }),
+        mergeMap((movie) => {
+          const data: Prisma.MovieCreateInput = {
+            ...movie,
+            persons: {
+              connectOrCreate: movie.persons.map((person) => {
+                const { description, ...p } = person;
+                return {
+                  where: { kpId: person.kpId },
+                  create: {
+                    kpId: person.kpId,
+                    movieKpId: movie.kpId,
+                    description,
+                    profession: person.profession,
+                    person: {
+                      connectOrCreate: {
+                        where: { kpId: person.kpId },
+                        create: {
+                          ...p,
+                        },
+                      },
+                    },
+                  },
+                };
+              }),
+            },
+          };
+          return this.prisma.movie.upsert({
+            where: { kpId: movie.kpId },
+            create: data,
+            update: data,
+            include: { persons: true },
+          });
         })
       );
 
