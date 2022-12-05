@@ -90,7 +90,7 @@ export class ApiClientService {
     }).pipe(map((res) => res.data));
   }
 
-  fundMovieAll(request: Request): Observable<PaginatedResponse<Movie>> {
+  findManyMovies(request: Request): Observable<PaginatedResponse<Movie>> {
     return this.get<PaginatedResponse<Movie>>('/movie', {
       params: {
         ...request,
