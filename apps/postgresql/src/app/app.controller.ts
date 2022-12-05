@@ -14,23 +14,21 @@ import {
   switchAll,
   tap,
 } from 'rxjs';
-import { plainToInstance } from 'class-transformer';
 import {
   CreatePaginationQueryDto,
-  KpToMovieDto,
   PaginationQueryDto,
   PaginationResponseDto,
   SearchAllQueryDto,
 } from '@dto';
-import { ApiClientService } from '@kinopoiskdev-client';
 import { TransformPipe } from '@pipes';
+import { MovieAdapter } from '@adapters';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly prisma: PrismaPostgresqlService,
-    private readonly api: ApiClientService
+    private readonly movieClient: MovieAdapter
   ) {}
 
   @Get('metrics')
@@ -42,13 +40,7 @@ export class AppController {
 
   @Get('create-or-update/:id')
   create(@Param('id', ParseIntPipe) id: number): Observable<Movie> {
-    const movie$ = this.api.findMovieById({ id }).pipe(
-      map((movie) =>
-        plainToInstance(KpToMovieDto, movie, {
-          excludeExtraneousValues: true,
-        })
-      )
-    );
+    const movie$ = this.movieClient.findByIdFromKp(id);
     return movie$.pipe(
       auditTime(100),
       tap((movie) => console.log('movie: ', movie.kpId)),
@@ -162,14 +154,9 @@ export class AppController {
     const range$ = range(page, end);
 
     range$.subscribe((page) => {
-      const movies$ = this.api.fundMovieAll({ limit, page }).pipe(
+      const movies$ = this.movieClient.findManyFromKp({ limit, page }).pipe(
         map((movies) => movies.docs),
         switchAll(),
-        map((movie) =>
-          plainToInstance(KpToMovieDto, movie, {
-            excludeExtraneousValues: true,
-          })
-        ),
         tap((movie) => console.log('movie: ', movie.kpId)),
         map((movie) => {
           const persons$ = from(movie.persons).pipe(
