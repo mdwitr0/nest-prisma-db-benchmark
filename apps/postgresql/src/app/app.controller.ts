@@ -2,7 +2,18 @@ import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { Movie, Prisma, PrismaPostgresqlService } from '@prisma/postgresql';
-import { from, map, mergeMap, Observable, range, switchAll } from 'rxjs';
+import {
+  auditTime,
+  catchError,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  range,
+  switchAll,
+  tap,
+} from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import {
   CreatePaginationQueryDto,
@@ -39,10 +50,63 @@ export class AppController {
       )
     );
     return movie$.pipe(
-      mergeMap((movie) =>
-        this.prisma.movie.create({
-          data: {
-            ...movie,
+      auditTime(100),
+      tap((movie) => console.log('movie: ', movie.kpId)),
+      map((movie) => {
+        const persons$ = from(movie.persons).pipe(
+          auditTime(100),
+          tap((person) => console.log('person: ', person.kpId)),
+
+          mergeMap((person) => {
+            const { description, ...p } = person;
+
+            return this.prisma.person.upsert({
+              where: { kpId: person.kpId },
+              create: {
+                ...p,
+              },
+              update: {
+                ...p,
+              },
+            });
+          })
+        );
+        persons$.subscribe();
+        return movie;
+      }),
+      mergeMap((movie) => {
+        const data: Omit<
+          Prisma.MovieCreateInput,
+          'rating' | 'externalId' | 'genres'
+        > = {
+          ...movie,
+          persons: {
+            connectOrCreate: movie.persons.map((person) => {
+              const { description, ...p } = person;
+              return {
+                where: { kpId: person.kpId },
+                create: {
+                  kpId: person.kpId,
+                  movieKpId: movie.kpId,
+                  description,
+                  profession: person.profession,
+                  person: {
+                    connectOrCreate: {
+                      where: { kpId: person.kpId },
+                      create: {
+                        ...p,
+                      },
+                    },
+                  },
+                },
+              };
+            }),
+          },
+        };
+        return this.prisma.movie.upsert({
+          where: { kpId: movie.kpId },
+          create: {
+            ...data,
             rating: {
               create: {
                 ...movie.rating,
@@ -59,6 +123,81 @@ export class AppController {
                 create: { ...genre },
               })),
             },
+          },
+          update: {
+            ...data,
+            rating: {
+              update: {
+                ...movie.rating,
+              },
+            },
+            externalId: {
+              update: {
+                ...movie.externalId,
+              },
+            },
+            genres: {
+              upsert: movie.genres.map((genre) => ({
+                where: { name: genre.name },
+                create: { ...genre },
+                update: { ...genre },
+              })),
+            },
+          },
+          include: { persons: true },
+        });
+      }),
+      catchError((err) => {
+        console.log(err);
+        return of(null);
+      })
+    );
+  }
+
+  @Get('create-or-update/all')
+  createOrUpdateAll(
+    @Query(TransformPipe) pagination: CreatePaginationQueryDto
+  ): { message: string } {
+    const { limit, page, end } = pagination;
+    const range$ = range(page, end);
+
+    range$.subscribe((page) => {
+      const movies$ = this.api.fundMovieAll({ limit, page }).pipe(
+        map((movies) => movies.docs),
+        switchAll(),
+        map((movie) =>
+          plainToInstance(KpToMovieDto, movie, {
+            excludeExtraneousValues: true,
+          })
+        ),
+        tap((movie) => console.log('movie: ', movie.kpId)),
+        map((movie) => {
+          const persons$ = from(movie.persons).pipe(
+            tap((person) => console.log('person: ', person.kpId)),
+
+            mergeMap((person) => {
+              const { description, ...p } = person;
+
+              return this.prisma.person.upsert({
+                where: { kpId: person.kpId },
+                create: {
+                  ...p,
+                },
+                update: {
+                  ...p,
+                },
+              });
+            })
+          );
+          persons$.subscribe();
+          return movie;
+        }),
+        mergeMap((movie) => {
+          const data: Omit<
+            Prisma.MovieCreateInput,
+            'rating' | 'externalId' | 'genres'
+          > = {
+            ...movie,
             persons: {
               connectOrCreate: movie.persons.map((person) => {
                 const { description, ...p } = person;
@@ -81,146 +220,54 @@ export class AppController {
                 };
               }),
             },
-          },
-          include: {
-            genres: true,
-            rating: true,
-            externalId: true,
-            persons: true,
-          },
-        })
-      )
-    );
-  }
-
-  @Get('create-or-update/all')
-  createOrUpdateAll(
-    @Query(TransformPipe) pagination: CreatePaginationQueryDto
-  ): { message: string } {
-    const { limit, page, end } = pagination;
-    const range$ = range(page, end);
-
-    range$.subscribe((page) => {
-      const movies$ = this.api.fundMovieAll({ limit, page }).pipe(
-        map((movies) => movies.docs),
-        switchAll(),
-        map((movie) =>
-          plainToInstance(KpToMovieDto, movie, {
-            excludeExtraneousValues: true,
-          })
-        ),
-        mergeMap((movie) => {
-          return from(
-            this.prisma.movie.findUnique({
-              where: { kpId: movie.kpId },
-            })
-          ).pipe(
-            mergeMap((movieFromDb) => {
-              if (movieFromDb) {
-                return this.prisma.movie.update({
-                  where: { kpId: movie.kpId },
-                  data: {
-                    ...movie,
-                    rating: {
-                      update: {
-                        ...movie.rating,
-                      },
-                    },
-                    externalId: {
-                      update: {
-                        ...movie.externalId,
-                      },
-                    },
-                    genres: {
-                      upsert: movie.genres.map((genre) => ({
-                        where: { name: genre.name },
-                        create: { ...genre },
-                        update: { ...genre },
-                      })),
-                    },
-                    persons: {
-                      connectOrCreate: movie.persons.map((person) => {
-                        const { description, ...p } = person;
-                        return {
-                          where: { kpId: person.kpId },
-                          create: {
-                            kpId: person.kpId,
-                            movieKpId: movie.kpId,
-                            description,
-                            profession: person.profession,
-                            person: {
-                              connectOrCreate: {
-                                where: { kpId: person.kpId },
-                                create: {
-                                  ...p,
-                                },
-                              },
-                            },
-                          },
-                        };
-                      }),
-                    },
-                  },
-                  include: {
-                    persons: true,
-                    genres: true,
-                    rating: true,
-                    externalId: true,
-                  },
-                });
-              } else {
-                return this.prisma.movie.create({
-                  data: {
-                    ...movie,
-                    rating: {
-                      create: {
-                        ...movie.rating,
-                      },
-                    },
-                    externalId: {
-                      create: {
-                        ...movie.externalId,
-                      },
-                    },
-                    genres: {
-                      connectOrCreate: movie.genres.map((genre) => ({
-                        where: { name: genre.name },
-                        create: { ...genre },
-                      })),
-                    },
-                    persons: {
-                      connectOrCreate: movie.persons.map((person) => {
-                        const { description, ...p } = person;
-                        return {
-                          where: { kpId: person.kpId },
-                          create: {
-                            kpId: person.kpId,
-                            movieKpId: movie.kpId,
-                            description,
-                            profession: person.profession,
-                            person: {
-                              connectOrCreate: {
-                                where: { kpId: person.kpId },
-                                create: {
-                                  ...p,
-                                },
-                              },
-                            },
-                          },
-                        };
-                      }),
-                    },
-                  },
-                  include: {
-                    genres: true,
-                    rating: true,
-                    externalId: true,
-                    persons: true,
-                  },
-                });
-              }
-            })
-          );
+          };
+          return this.prisma.movie.upsert({
+            where: { kpId: movie.kpId },
+            create: {
+              ...data,
+              rating: {
+                create: {
+                  ...movie.rating,
+                },
+              },
+              externalId: {
+                create: {
+                  ...movie.externalId,
+                },
+              },
+              genres: {
+                connectOrCreate: movie.genres.map((genre) => ({
+                  where: { name: genre.name },
+                  create: { ...genre },
+                })),
+              },
+            },
+            update: {
+              ...data,
+              rating: {
+                update: {
+                  ...movie.rating,
+                },
+              },
+              externalId: {
+                update: {
+                  ...movie.externalId,
+                },
+              },
+              genres: {
+                upsert: movie.genres.map((genre) => ({
+                  where: { name: genre.name },
+                  create: { ...genre },
+                  update: { ...genre },
+                })),
+              },
+            },
+            include: { persons: true },
+          });
+        }),
+        catchError((err) => {
+          console.log(err);
+          return of(null);
         })
       );
 
