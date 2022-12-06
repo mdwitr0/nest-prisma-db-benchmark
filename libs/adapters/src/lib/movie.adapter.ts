@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { Observable, map } from 'rxjs';
 
-export interface Request {
+export interface MovieRequest {
   field?: string[];
   search?: string[];
   sortField?: string[];
@@ -13,7 +13,7 @@ export interface Request {
   limit?: number;
 }
 
-export type PaginatedResponse = {
+export type MoviePaginatedResponse = {
   docs: KpToMovieDto[];
   total: number;
   limit: number;
@@ -31,7 +31,7 @@ export class MovieAdapter {
       .pipe(map((movie) => this.paintToInstance(movie)));
   }
 
-  findManyFromKp(request: Request): Observable<PaginatedResponse> {
+  findManyFromKp(request: MovieRequest): Observable<MoviePaginatedResponse> {
     return this.api.findManyMovies(request).pipe(
       map((res) => ({
         ...res,

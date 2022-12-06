@@ -1,4 +1,4 @@
-import { Name } from '@kinopoiskdev-client';
+import { Person } from '@kinopoiskdev-client';
 import {
   Person as PostgresPerson,
   ProfessionType as PostgresProfessionType,
@@ -12,7 +12,7 @@ import {
 } from '@prisma/mongodb';
 import { faker } from '@faker-js/faker';
 
-export class KpToMoviePersonDto<T = Name>
+export class KpToMoviePersonDto<T = Person>
   implements Partial<PostgresPerson>, Partial<PostgresPerson>
 {
   @Expose()
