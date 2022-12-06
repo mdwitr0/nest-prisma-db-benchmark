@@ -32,10 +32,6 @@ export class KpToMoviePersonDto<T = Person>
   sex: PostgresPersonSex | MongoPersonSex;
 
   @Expose()
-  @SetDefaultValue(null)
-  description: string | null;
-
-  @Expose()
   @Transform(() =>
     faker.helpers.arrayElement(Object.values(MongoProfessionType))
   )

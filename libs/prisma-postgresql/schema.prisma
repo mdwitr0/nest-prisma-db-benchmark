@@ -104,16 +104,14 @@ model Person {
 }
 
 model MovieOnPerson {
-  id          Int              @id @default(autoincrement())
-  kpId        Int              @unique
-  movieKpId   Int
-  // String properties
-  description String?
+  id         Int              @id @default(autoincrement())
+  kpId       Int              @unique
+  movieKpId  Int
   // Enum properties
-  profession  ProfessionType[]
+  profession ProfessionType[]
   // Date proprties
-  assignedAt  DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  assignedAt DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
   // Relations
 
   person   Person? @relation(fields: [personId], references: [id])

@@ -1,1 +1,2 @@
-export * from './lib/movie/movie.adapter';
+export * from './lib/movie.adapter';
+export * from './lib/person.adapter';

@@ -94,21 +94,19 @@ model Person {
 }
 
 model MovieOnPerson {
-  id          String           @id @default(auto()) @map("_id") @db.ObjectId
-  kpId        Int              @unique
-  movieKpId   Int
-  // String properties
-  description String?
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  kpId       Int              @unique
+  movieKpId  Int
   // Enum properties
-  profession  ProfessionType[]
+  profession ProfessionType[]
   // Date proprties
-  assignedAt  DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  assignedAt DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
   // Relations
-  movie       Movie            @relation(fields: [movieId], references: [id])
-  movieId     String           @db.ObjectId
-  person      Person           @relation(fields: [personId], references: [id])
-  personId    String           @db.ObjectId
+  movie      Movie            @relation(fields: [movieId], references: [id])
+  movieId    String           @db.ObjectId
+  person     Person           @relation(fields: [personId], references: [id])
+  personId   String           @db.ObjectId
 }
 
 model Movie {
