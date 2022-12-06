@@ -13,6 +13,7 @@ import {
   Id,
   Movie,
   PaginatedResponse,
+  Person,
   Request,
 } from './interfaces';
 
@@ -108,6 +109,18 @@ export class ApiClientService {
           'persons',
         ].join(' '),
       },
+    }).pipe(map((res) => res.data));
+  }
+
+  findPersonById(request: Id): Observable<Person> {
+    return this.get<Person>('/person', {
+      params: { search: request.id, field: 'id' },
+    }).pipe(map((res) => res.data));
+  }
+
+  findManyPersons(request: Request): Observable<PaginatedResponse<Person>> {
+    return this.get<PaginatedResponse<Person>>('/person', {
+      params: request,
     }).pipe(map((res) => res.data));
   }
 }
