@@ -11,6 +11,7 @@ import {
   PersonSex as MongoPersonSex,
 } from '@prisma/mongodb';
 import { faker } from '@faker-js/faker';
+import { KpGenderToMovieEnum } from '@enum';
 
 export class KpToMoviePersonDto<T = Person>
   implements Partial<PostgresPerson>, Partial<PostgresPerson>
@@ -28,7 +29,7 @@ export class KpToMoviePersonDto<T = Person>
   enName: string;
 
   @Expose()
-  @SetDefaultValue(faker.helpers.arrayElement(Object.values(MongoPersonSex)))
+  @Transform(({ value }) => KpGenderToMovieEnum[value] || MongoPersonSex.MALE)
   sex: PostgresPersonSex | MongoPersonSex;
 
   @Expose()
