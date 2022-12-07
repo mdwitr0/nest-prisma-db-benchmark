@@ -20,14 +20,15 @@ import {
   SearchAllQueryDto,
 } from '@dto';
 import { TransformPipe } from '@pipes';
-import { MovieAdapter } from '@adapters';
+import { MovieAdapter, PersonAdapter } from '@adapters';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly prisma: PrismaMongodbService,
-    private readonly movieClient: MovieAdapter
+    private readonly movieClient: MovieAdapter,
+    private readonly personClient: PersonAdapter
   ) {}
 
   @Get('metrics')
@@ -37,46 +38,17 @@ export class AppController {
     });
   }
 
-  @Get('create-or-update/:id(\\d+)')
-  createOrUpdate(@Param('id', ParseIntPipe) id: number): Observable<Movie> {
-    return this.movieClient.findByIdFromKp(id).pipe(
-      tap((movie) => console.log('movie: ', movie.kpId)),
-      map((movie) => {
-        const persons$ = from(movie.persons).pipe(
-          tap((person) => console.log('person: ', person.kpId)),
-          mergeMap((person) => this.appService.upsertPerson(person))
-        );
-        persons$.subscribe();
-        return movie;
-      }),
-      mergeMap((movie) => this.appService.upsertMovie(movie)),
-      catchError((err) => {
-        console.log(err);
-        return of(null);
-      })
-    );
-  }
-
-  @Get('create-or-update/all')
-  createOrUpdateAll(
-    @Query(TransformPipe) pagination: CreatePaginationQueryDto
-  ): { message: string } {
+  @Get('movie/update')
+  upsertMovie(@Query(TransformPipe) pagination: CreatePaginationQueryDto): {
+    message: string;
+  } {
     const { limit, page, end } = pagination;
     const range$ = range(page, end);
 
     range$.subscribe((page) => {
       const movies$ = this.movieClient.findManyFromKp({ limit, page }).pipe(
-        map((movies) => movies.docs),
+        map((res) => res.docs),
         switchAll(),
-        tap((movie) => console.log('movie: ', movie.kpId)),
-        map((movie) => {
-          const persons$ = from(movie.persons).pipe(
-            tap((person) => console.log('person: ', person.kpId)),
-            mergeMap((person) => this.appService.upsertPerson(person))
-          );
-          persons$.subscribe();
-          return movie;
-        }),
         mergeMap((movie) => this.appService.upsertMovie(movie))
       );
 
@@ -85,13 +57,32 @@ export class AppController {
     return { message: 'ok' };
   }
 
+  @Get('persons/upsert')
+  upsertPersons(@Query(TransformPipe) pagination: CreatePaginationQueryDto): {
+    message: string;
+  } {
+    const { limit, page, end } = pagination;
+    const range$ = range(page, end);
+
+    range$.subscribe((page) => {
+      const movies$ = this.personClient.findManyFromKp({ limit, page }).pipe(
+        map((res) => res.docs),
+        switchAll(),
+        mergeMap((person) => this.appService.upsertPerson(person))
+      );
+
+      movies$.subscribe();
+    });
+    return { message: 'ok' };
+  }
+
   @Get('find/:id')
-  findById(@Param('id', ParseIntPipe) id: number): Promise<Movie> {
-    return this.appService.findUnique({ kpId: id });
+  findMovieById(@Param('id', ParseIntPipe) id: number): Promise<Movie> {
+    return this.appService.findUniqueMovie({ kpId: id });
   }
 
   @Get('find/all')
-  findMany(
+  findManyMovie(
     @Query(TransformPipe) pagination: PaginationQueryDto,
     @Query(TransformPipe)
     query: SearchAllQueryDto<
@@ -99,6 +90,6 @@ export class AppController {
       Prisma.Enumerable<Prisma.MovieOrderByWithRelationInput>
     >
   ): Observable<PaginationResponseDto<Movie>> {
-    return this.appService.findMany(pagination, query);
+    return this.appService.findManyMovie(pagination, query);
   }
 }

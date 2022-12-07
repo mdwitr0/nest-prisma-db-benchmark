@@ -51,14 +51,14 @@ export class AppService {
     });
   }
 
-  findUnique(where: Prisma.MovieWhereUniqueInput) {
+  findUniqueMovie(where: Prisma.MovieWhereUniqueInput) {
     return this.prisma.movie.findUnique({
       where,
       include: { persons: true },
     });
   }
 
-  findMany(
+  findManyMovie(
     pagination: PaginationQueryDto,
     query: SearchAllQueryDto<
       Prisma.MovieWhereInput,
