@@ -87,14 +87,11 @@ export class AppController {
 
   @Get('find/:id')
   findById(@Param('id', ParseIntPipe) id: number): Promise<Movie> {
-    return this.prisma.movie.findUnique({
-      where: { kpId: id },
-      include: { persons: true },
-    });
+    return this.appService.findUnique({ kpId: id });
   }
 
   @Get('find/all')
-  findAll(
+  findMany(
     @Query(TransformPipe) pagination: PaginationQueryDto,
     @Query(TransformPipe)
     query: SearchAllQueryDto<
@@ -102,28 +99,6 @@ export class AppController {
       Prisma.Enumerable<Prisma.MovieOrderByWithRelationInput>
     >
   ): Observable<PaginationResponseDto<Movie>> {
-    const { limit, page } = pagination;
-    const args: Prisma.MovieFindManyArgs = {
-      ...query,
-      include: { persons: true },
-      take: limit,
-      skip: (page - 1) * limit,
-    };
-
-    return from(
-      Promise.all([
-        this.prisma.movie.findMany(args),
-        this.prisma.movie.count({
-          where: args.where,
-        }),
-      ])
-    ).pipe(
-      map(([docs, count]) => ({
-        docs,
-        count,
-        page,
-        pages: Math.floor(count / limit),
-      }))
-    );
+    return this.appService.findMany(pagination, query);
   }
 }
