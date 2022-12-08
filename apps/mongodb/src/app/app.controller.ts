@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
 import {
   catchError,
+  delay,
   from,
   map,
   mergeMap,
@@ -12,6 +13,7 @@ import {
   range,
   switchAll,
   tap,
+  toArray,
 } from 'rxjs';
 import {
   CreatePaginationQueryDto,
@@ -38,7 +40,7 @@ export class AppController {
     });
   }
 
-  @Get('movie/update')
+  @Get('movie/upsert')
   upsertMovie(@Query(TransformPipe) pagination: CreatePaginationQueryDto): {
     message: string;
   } {
@@ -57,21 +59,29 @@ export class AppController {
     return { message: 'ok' };
   }
 
-  @Get('persons/upsert')
+  @Get('person/upsert')
   upsertPersons(@Query(TransformPipe) pagination: CreatePaginationQueryDto): {
     message: string;
   } {
     const { limit, page, end } = pagination;
-    const range$ = range(page, end);
+    console.log(limit, page, end);
+    const range$ = range(page, end - page).pipe(
+      mergeMap((page) => of(page).pipe(delay(page * 100)))
+    );
 
     range$.subscribe((page) => {
-      const movies$ = this.personClient.findManyFromKp({ limit, page }).pipe(
-        map((res) => res.docs),
-        switchAll(),
-        mergeMap((person) => this.appService.upsertPerson(person))
-      );
+      const pesons$ = this.personClient
+        .findManyFromKp({
+          limit,
+          page,
+          field: ['id'],
+          search: ['1-9999999999999'],
+        })
+        .pipe(mergeMap((res) => res.docs));
 
-      movies$.subscribe();
+      pesons$.subscribe(async (person) => {
+        await this.appService.upsertPerson(person);
+      });
     });
     return { message: 'ok' };
   }
