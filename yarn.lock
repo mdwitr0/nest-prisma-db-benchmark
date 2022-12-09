@@ -10,6 +10,11 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@anchan828/nest-bullmq@^3.1.6":
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/@anchan828/nest-bullmq/-/nest-bullmq-3.1.6.tgz#bb7ece632b154cca30e45fa3c6bd09c22ea4e856"
+  integrity sha512-kDMqKY9LNCbmwSxe4VE527BtCdULciGFJLAk9rvuRgUQHkGR2ZCtK0G+WpSvEnl8ZcsMhSiotwhyGFV6D4KKfA==
+
 "@angular-devkit/core@14.2.1":
   version "14.2.1"
   resolved "https://registry.npmjs.org/@angular-devkit/core/-/core-14.2.1.tgz"
@@ -1156,7 +1161,7 @@
     "@nrwl/node" "15.2.3"
     enquirer "~2.3.6"
 
-"@nrwl/node@15.2.3", "@nrwl/node@^15.2.3":
+"@nrwl/node@15.2.3":
   version "15.2.3"
   resolved "https://registry.npmjs.org/@nrwl/node/-/node-15.2.3.tgz"
   integrity sha512-stt+zXbZsWVELu3+r5yueYDMjJsDLLAIdsBtpwBjrCxyC/sOngRg8H/zJLZKGxs8GO6xIevNFpBJtfr/QY0OVw==
@@ -2500,10 +2505,15 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@16.11.7":
+"@types/node@*":
   version "16.11.7"
   resolved "https://registry.npmjs.org/@types/node/-/node-16.11.7.tgz"
   integrity sha512-QB5D2sqfSjCmTuWcBWyJ+/44bcjO7VbjSbOE0ucoVbAsSNQc4Lt6QkgkVXkTDwkL4z/beecZNDvVX15D4P8Jbw==
+
+"@types/node@18.7.1":
+  version "18.7.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.1.tgz#352bee64f93117d867d05f7406642a52685cbca6"
+  integrity sha512-GKX1Qnqxo4S+Z/+Z8KKPLpH282LD7jLHWJcVryOflnsnH+BtSDfieR6ObwBMwpnNws0bUK8GI7z0unQf9bARNQ==
 
 "@types/node@>=12.12.47", "@types/node@>=13.7.0":
   version "18.11.10"

@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaMongodbModule } from '@prisma/mongodb';
 import { ApiClientModule } from '@kinopoiskdev-client';
-import { MovieAdapter } from '@adapters';
+import { MovieAdapter, PersonAdapter } from '@adapters';
 
 @Module({
   imports: [
@@ -15,12 +15,6 @@ import { MovieAdapter } from '@adapters';
     }),
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: MovieAdapter,
-      useClass: MovieAdapter,
-    },
-  ],
+  providers: [AppService, MovieAdapter, PersonAdapter],
 })
 export class AppModule {}
