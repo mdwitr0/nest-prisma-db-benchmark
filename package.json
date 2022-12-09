@@ -17,6 +17,7 @@
   "dependencies": {
     "@bull-board/api": "^4.8.0",
     "@bull-board/fastify": "^4.8.0",
+    "@bull-board/ui": "^4.8.0",
     "@faker-js/faker": "^7.6.0",
     "@nestjs/bull": "^0.6.2",
     "@nestjs/common": "^9.0.0",

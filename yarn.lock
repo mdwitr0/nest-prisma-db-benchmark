@@ -330,7 +330,7 @@
     "@fastify/view" "^7.0.0"
     ejs "^3.1.8"
 
-"@bull-board/ui@4.8.0":
+"@bull-board/ui@4.8.0", "@bull-board/ui@^4.8.0":
   version "4.8.0"
   resolved "https://registry.yarnpkg.com/@bull-board/ui/-/ui-4.8.0.tgz#653e6a70ec8c7e2011cf5d9e07a5c37cc2a304d8"
   integrity sha512-KNk4/robDWflZxM2HfrRsijAePDE1OVyTyfhX5+uWLclNNuBH+ZZnOJnb+qnoa2giV8UKO2WZiuRqdUDNtDlQA==
