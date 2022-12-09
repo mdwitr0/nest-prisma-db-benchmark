@@ -43,6 +43,15 @@ services:
       - default
     ports:
       - '3000:3000'
+  redis:
+    image: redis
+    restart: always
+    volumes:
+      - ./storage/redis/data:/data
+    ports:
+      - "6379:6379"
+    logging:
+      driver: none
 #  jaeger:
 #    image: jaegertracing/all-in-one
 #    container_name: jaeger
