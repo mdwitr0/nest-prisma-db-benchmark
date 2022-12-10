@@ -16,13 +16,13 @@ export class MovieProcessor {
     @InjectQueue(QueueEnum.MOVIE) private readonly queue: Queue
   ) {}
 
-  @Process(QueueProcess.UPSERT)
+  @Process({ name: QueueProcess.UPSERT, concurrency: 10 })
   async upsertProcess(job: Job) {
     this.logger.log(`Upserting movie ${JSON.stringify(job.data.data.kpId)}`);
     await this.service.upsert(job.data.data);
   }
 
-  @Process(QueueProcess.PARSE_PAGE)
+  @Process({ name: QueueProcess.PARSE_PAGE, concurrency: 10 })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
     this.logger.log(`Parsing pages ${job.data.page}`);
     this.movieClient
