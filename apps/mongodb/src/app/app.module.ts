@@ -3,17 +3,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaMongodbModule } from '@prisma/mongodb';
-import { ApiClientModule } from '@kinopoiskdev-client';
 import { MovieAdapter, PersonAdapter } from '@adapters';
+import { MovieModule } from './movie/movie.module';
+import { PersonModule } from './person/person.module';
 
 @Module({
-  imports: [
-    PrismaMongodbModule,
-    ApiClientModule.register({
-      apiKey: process.env.API_KEY,
-      baseURL: 'https://api.kinopoisk.dev',
-    }),
-  ],
+  imports: [PrismaMongodbModule, MovieModule, PersonModule],
   controllers: [AppController],
   providers: [AppService, MovieAdapter, PersonAdapter],
 })
