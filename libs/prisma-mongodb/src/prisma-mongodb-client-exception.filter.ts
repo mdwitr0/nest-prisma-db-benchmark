@@ -65,13 +65,10 @@ export class PrismaMongodbClientExceptionFilter extends BaseExceptionFilter {
    * @param host
    * @returns
    */
-  catch(
-    exception: Prisma.PrismaClientKnownRequestError | Prisma.NotFoundError,
-    host: ArgumentsHost
-  ) {
+  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
       return this.catchClientKnownRequestError(exception, host);
-    } else if (exception instanceof Prisma.NotFoundError) {
+    } else {
       return this.catchNotFoundError(exception, host);
     }
   }
