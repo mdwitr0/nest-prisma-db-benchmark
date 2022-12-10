@@ -10,7 +10,7 @@ const IGNORE_ACTIONS = [
   'findRaw',
 ] as const;
 
-export function retryMiddleware(): Prisma.Middleware {
+export function mongodbRetryMiddleware(): Prisma.Middleware {
   return async (params, next) => {
     const operation = retry.operation({
       retries: 4, // 1st time is not counted

@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Prisma } from './generated/client';
 
-export interface LoggingMiddlewareOptions {
+export interface MongodbLoggingMiddlewareOptions {
   logger: Console | Logger;
   logLevel: 'log' | 'debug' | 'warn' | 'error';
   /**
@@ -34,8 +34,8 @@ export interface QueryInfo {
   executionTime: number;
 }
 
-export function loggingMiddleware(
-  { logger, logMessage, logLevel }: LoggingMiddlewareOptions = {
+export function mongodbLoggingMiddleware(
+  { logger, logMessage, logLevel }: MongodbLoggingMiddlewareOptions = {
     logger: new Logger('Prisma'),
     logLevel: 'debug',
   }
