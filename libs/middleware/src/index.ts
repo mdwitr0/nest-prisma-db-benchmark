@@ -1,1 +1,2 @@
-export * from './lib/middleware.module';
+export * from './lib/logging.middleware';
+export * from './lib/retry.middleware';
