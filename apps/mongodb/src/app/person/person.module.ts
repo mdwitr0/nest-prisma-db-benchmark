@@ -1,15 +1,29 @@
 import { Module } from '@nestjs/common';
 
-import { PersonAdapter } from '@adapters';
-import { QueueEnum } from '@enum';
-import { ApiClientModule } from '@kinopoiskdev-client';
-import { BullModule } from '@nestjs/bull';
 import { PersonController } from './person.controller';
-import { PersonProcessor } from './person.prosessor';
 import { PersonService } from './person.service';
+import {
+  mongodbLoggingMiddleware,
+  mongodbRetryMiddleware,
+  PrismaMongodbModule,
+} from '@prisma/mongodb';
+import { ApiClientModule } from '@kinopoiskdev-client';
+import { PersonAdapter } from '@adapters';
+import { BullModule } from '@nestjs/bull';
+import { QueueEnum } from '@enum';
+import { PersonProcessor } from './person.prosessor';
 
 @Module({
   imports: [
+    PrismaMongodbModule.forRoot({
+      isGlobal: true,
+      prismaServiceOptions: {
+        prismaOptions: {
+          log: ['info', 'warn', 'error'],
+        },
+        middlewares: [mongodbLoggingMiddleware()],
+      },
+    }),
     ApiClientModule.register({
       apiKey: process.env.API_KEY,
       baseURL: 'https://api.kinopoisk.dev',

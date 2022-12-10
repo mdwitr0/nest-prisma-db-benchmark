@@ -19,7 +19,7 @@ export class PersonProcessor {
   @Process(QueueProcess.UPSERT)
   async upsertProcess(job: Job) {
     this.logger.log(`Upserting person ${JSON.stringify(job.data.data.kpId)}`);
-    this.service.upsert(job.data.data);
+    await this.service.upsert(job.data.data);
   }
 
   @Process(QueueProcess.PARSE_PAGE)

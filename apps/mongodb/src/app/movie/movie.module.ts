@@ -2,7 +2,11 @@ import { Module } from '@nestjs/common';
 
 import { MovieController } from './movie.controller';
 import { MovieService } from './movie.service';
-import { PrismaMongodbModule } from '@prisma/mongodb';
+import {
+  mongodbLoggingMiddleware,
+  mongodbRetryMiddleware,
+  PrismaMongodbModule,
+} from '@prisma/mongodb';
 import { ApiClientModule } from '@kinopoiskdev-client';
 import { MovieAdapter } from '@adapters';
 import { MovieProcessor } from './movie.prosessor';
@@ -11,7 +15,15 @@ import { QueueEnum } from '@enum';
 
 @Module({
   imports: [
-    PrismaMongodbModule,
+    PrismaMongodbModule.forRoot({
+      isGlobal: true,
+      prismaServiceOptions: {
+        prismaOptions: {
+          log: ['info', 'warn', 'error'],
+        },
+        middlewares: [mongodbLoggingMiddleware()],
+      },
+    }),
     ApiClientModule.register({
       apiKey: process.env.API_KEY,
       baseURL: 'https://api.kinopoisk.dev',
@@ -19,7 +31,7 @@ import { QueueEnum } from '@enum';
     BullModule.registerQueue({
       name: QueueEnum.MOVIE,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
-      limiter: { max: 10, duration: 1000 },
+      limiter: { max: 500, duration: 1000 },
     }),
   ],
   controllers: [MovieController],
