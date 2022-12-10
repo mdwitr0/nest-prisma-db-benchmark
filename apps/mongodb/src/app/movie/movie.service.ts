@@ -29,7 +29,6 @@ export class MovieService {
         }),
       },
     };
-
     return this.prisma.movie.upsert({
       where: { kpId: movie.kpId },
       create: data,

@@ -6,10 +6,21 @@ import { PrismaMongodbModule } from '@prisma/mongodb';
 import { MovieAdapter, PersonAdapter } from '@adapters';
 import { MovieModule } from './movie/movie.module';
 import { PersonModule } from './person/person.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
-  imports: [PrismaMongodbModule, MovieModule, PersonModule],
+  imports: [
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    PrismaMongodbModule,
+    MovieModule,
+    PersonModule,
+  ],
   controllers: [AppController],
-  providers: [AppService, MovieAdapter, PersonAdapter],
+  providers: [AppService],
 })
 export class AppModule {}

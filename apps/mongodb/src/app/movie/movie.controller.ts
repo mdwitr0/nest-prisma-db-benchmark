@@ -11,13 +11,17 @@ import {
 } from '@dto';
 import { TransformPipe } from '@pipes';
 import { MovieAdapter } from '@adapters';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { QueueEnum, QueueProcess } from '@enum';
 
 @Controller('movie')
 export class MovieController {
   constructor(
     private readonly service: MovieService,
     private readonly prisma: PrismaMongodbService,
-    private readonly movieClient: MovieAdapter
+    private readonly movieClient: MovieAdapter,
+    @InjectQueue(QueueEnum.MOVIE) private readonly queue: Queue
   ) {}
 
   @Get('upsert')
@@ -25,16 +29,12 @@ export class MovieController {
     message: string;
   } {
     const { limit, page, end } = pagination;
-    const range$ = range(page, end);
-
-    range$.subscribe((page) => {
-      const movies$ = this.movieClient.findManyFromKp({ limit, page }).pipe(
-        map((res) => res.docs),
-        switchAll(),
-        mergeMap((movie) => this.service.upsert(movie))
+    range(page, end).subscribe((page) => {
+      this.queue.add(
+        QueueProcess.PARSE_PAGE,
+        { page, limit },
+        { delay: 1000 * (page - 1) }
       );
-
-      movies$.subscribe();
     });
     return { message: 'ok' };
   }
