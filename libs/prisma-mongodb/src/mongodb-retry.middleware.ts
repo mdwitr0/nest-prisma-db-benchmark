@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from './generated/client';
 import * as retry from 'retry';
 
 const IGNORE_ACTIONS = [
