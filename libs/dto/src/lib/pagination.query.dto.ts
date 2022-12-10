@@ -3,12 +3,12 @@ import { Expose } from 'class-transformer';
 
 export class PaginationQueryDto {
   @Expose()
-  @ParseNumber()
   @SetDefaultValue(1)
+  @ParseNumber()
   page: number;
 
   @Expose()
-  @ParseJson()
   @SetDefaultValue(10)
+  @ParseNumber()
   limit: number;
 }

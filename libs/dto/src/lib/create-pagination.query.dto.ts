@@ -1,10 +1,10 @@
 import { ParseNumber, SetDefaultValue } from '@decorators';
 import { Expose } from 'class-transformer';
-import { PaginationQueryDto } from '@dto';
+import { PaginationQueryDto } from './pagination.query.dto';
 
 export class CreatePaginationQueryDto extends PaginationQueryDto {
   @Expose()
-  @ParseNumber()
   @SetDefaultValue(10)
+  @ParseNumber()
   end: number;
 }
