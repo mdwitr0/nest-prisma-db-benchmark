@@ -19,7 +19,7 @@ import { PersonProcessor } from './person.prosessor';
       isGlobal: true,
       prismaServiceOptions: {
         prismaOptions: {
-          log: ['info', 'warn', 'error'],
+          log: ['warn', 'error'],
         },
         middlewares: [mongodbLoggingMiddleware(), mongodbRetryMiddleware()],
       },

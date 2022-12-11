@@ -19,7 +19,7 @@ import { QueueEnum } from '@enum';
       isGlobal: true,
       prismaServiceOptions: {
         prismaOptions: {
-          log: ['info', 'warn', 'error'],
+          log: ['warn', 'error'],
         },
         middlewares: [mongodbLoggingMiddleware()],
       },
