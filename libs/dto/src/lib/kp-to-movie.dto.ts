@@ -32,7 +32,12 @@ export class KpToMovieDto<T = KpMovie>
 
   @Expose()
   @SetDefaultValue([])
-  @Transform(({ value }) => value?.map((item) => item.name))
+  @Transform(({ value }) => {
+    if (value) {
+      return [...new Set(value.map((item) => item.name))];
+    }
+    return [];
+  })
   names: string[];
 
   @Expose()
