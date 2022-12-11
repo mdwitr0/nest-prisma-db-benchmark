@@ -4,7 +4,15 @@ import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { Span } from 'nestjs-otel';
-import { map, mergeMap, switchAll, timeInterval } from 'rxjs';
+import {
+  catchError,
+  map,
+  mergeMap,
+  switchAll,
+  timeInterval,
+  of,
+  toArray,
+} from 'rxjs';
 import { MovieService } from './movie.service';
 
 @Processor(QueueEnum.POSTGRES_MOVIE)
@@ -17,12 +25,17 @@ export class MovieProcessor {
   ) {}
 
   @Span()
-  @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE, concurrency: 10 })
+  @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
     const upserting$ = this.movieClient.findManyFromKp(job.data).pipe(
       map((res) => res.docs),
       switchAll(),
-      mergeMap(async (movie) => await this.service.upsert(movie))
+      mergeMap(async (movie) => await this.service.upsert(movie)),
+      catchError((err) => {
+        this.logger.error(err);
+        return of(null);
+      }),
+      toArray()
     );
 
     upserting$.pipe(timeInterval()).subscribe((time) => {

@@ -29,11 +29,7 @@ export class MovieController {
   } {
     const { limit, page, end } = pagination;
     range(page, end).subscribe((page) => {
-      this.queue.add(
-        QueueProcess.POSTGRES_PARSE_PAGE,
-        { page, limit },
-        { delay: 1000 * (page - 1) }
-      );
+      this.queue.add(QueueProcess.POSTGRES_PARSE_PAGE, { page, limit });
     });
     return { message: 'ok' };
   }

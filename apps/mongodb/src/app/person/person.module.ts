@@ -22,7 +22,7 @@ import { OpenTelemetryModule } from 'nestjs-otel';
         prismaOptions: {
           log: ['warn', 'error'],
         },
-        middlewares: [mongodbLoggingMiddleware(), mongodbRetryMiddleware()],
+        middlewares: [mongodbLoggingMiddleware()],
       },
     }),
     ApiClientModule.register({
@@ -32,7 +32,7 @@ import { OpenTelemetryModule } from 'nestjs-otel';
     BullModule.registerQueue({
       name: QueueEnum.MONGO_PERSON,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
-      limiter: { max: 500, duration: 1000 },
+      limiter: { max: 1, duration: 1000 },
     }),
     OpenTelemetryModule.forRoot({
       metrics: {

@@ -25,11 +25,12 @@ export class PersonController {
   } {
     const { limit, page, end } = pagination;
     range(page, end).subscribe((page) => {
-      this.queue.add(
-        QueueProcess.POSTGRES_PARSE_PAGE,
-        { limit, page, field: ['id'], search: ['1-9999999999999'] },
-        { delay: 1000 * (page - 1) }
-      );
+      this.queue.add(QueueProcess.POSTGRES_PARSE_PAGE, {
+        limit,
+        page,
+        field: ['id'],
+        search: ['1-9999999999999'],
+      });
     });
     return { message: 'ok' };
   }

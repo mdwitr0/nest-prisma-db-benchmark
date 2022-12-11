@@ -6,6 +6,7 @@ import { ApiClientModule } from '@kinopoiskdev-client';
 import { BullModule } from '@nestjs/bull';
 import {
   postgresqlLoggingMiddleware,
+  postgresqlRetryMiddleware,
   PrismaPostgresqlModule,
 } from '@prisma/postgresql';
 import { MovieController } from './movie.controller';
@@ -31,7 +32,7 @@ import { OpenTelemetryModule } from 'nestjs-otel';
     BullModule.registerQueue({
       name: QueueEnum.POSTGRES_MOVIE,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
-      limiter: { max: 500, duration: 1000 },
+      limiter: { max: 1, duration: 1000 },
     }),
     OpenTelemetryModule.forRoot({
       metrics: {

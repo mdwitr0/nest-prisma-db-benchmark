@@ -1,43 +1,35 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 
-import { MovieService } from './movie.service';
-import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
-import { map, mergeMap, Observable, range, switchAll } from 'rxjs';
 import {
   CreatePaginationQueryDto,
   PaginationQueryDto,
   PaginationResponseDto,
   SearchAllQueryDto,
 } from '@dto';
-import { TransformPipe } from '@pipes';
-import { MovieAdapter } from '@adapters';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
 import { QueueEnum, QueueProcess } from '@enum';
-import { OtelMethodCounter, Span, TraceService } from 'nestjs-otel';
+import { InjectQueue } from '@nestjs/bull';
+import { TransformPipe } from '@pipes';
+import { Movie, Prisma } from '@prisma/mongodb';
+import { Queue } from 'bull';
+import { Span, TraceService } from 'nestjs-otel';
+import { Observable, range } from 'rxjs';
+import { MovieService } from './movie.service';
 
 @Controller('movie')
 export class MovieController {
   constructor(
     private readonly service: MovieService,
-    private readonly prisma: PrismaMongodbService,
-    private readonly movieClient: MovieAdapter,
-    @InjectQueue(QueueEnum.MONGO_MOVIE) private readonly queue: Queue,
-    private readonly traceService: TraceService
+    @InjectQueue(QueueEnum.MONGO_MOVIE) private readonly queue: Queue
   ) {}
 
-  @Span()
+  @Span('error-span')
   @Get('upsert')
   upsert(@Query(TransformPipe) pagination: CreatePaginationQueryDto): {
     message: string;
   } {
     const { limit, page, end } = pagination;
     range(page, end).subscribe((page) => {
-      this.queue.add(
-        QueueProcess.MONGO_PARSE_PAGE,
-        { page, limit },
-        { delay: 1000 * (page - 1) }
-      );
+      this.queue.add(QueueProcess.MONGO_PARSE_PAGE, { page, limit });
     });
     return { message: 'ok' };
   }
