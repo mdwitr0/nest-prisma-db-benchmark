@@ -1,12 +1,14 @@
 import { KpToMovieDto, PaginationQueryDto, SearchAllQueryDto } from '@dto';
 import { Injectable } from '@nestjs/common';
 import { Movie, Prisma, PrismaMongodbService } from '@prisma/mongodb';
+import { Span } from 'nestjs-otel';
 import { from, map } from 'rxjs';
 
 @Injectable()
 export class MovieService {
   constructor(private readonly prisma: PrismaMongodbService) {}
 
+  @Span()
   async upsert(movie: KpToMovieDto): Promise<Movie> {
     const data: Prisma.MovieCreateInput = {
       ...movie,
@@ -37,6 +39,7 @@ export class MovieService {
     });
   }
 
+  @Span()
   findUnique(where: Prisma.MovieWhereUniqueInput) {
     return this.prisma.movie.findUnique({
       where,
@@ -44,6 +47,7 @@ export class MovieService {
     });
   }
 
+  @Span()
   findMany(
     pagination: PaginationQueryDto,
     query: SearchAllQueryDto<

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 
+import { BullModule } from '@nestjs/bull';
+import { PrismaMongodbModule } from '@prisma/mongodb';
+import { OpenTelemetryModule } from 'nestjs-otel';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { mongodbLoggingMiddleware, PrismaMongodbModule } from '@prisma/mongodb';
-import { MovieAdapter, PersonAdapter } from '@adapters';
 import { MovieModule } from './movie/movie.module';
 import { PersonModule } from './person/person.module';
-import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -17,6 +17,14 @@ import { BullModule } from '@nestjs/bull';
       redis: {
         host: 'localhost',
         port: 6379,
+      },
+    }),
+    OpenTelemetryModule.forRoot({
+      metrics: {
+        hostMetrics: true,
+        apiMetrics: {
+          enable: true,
+        },
       },
     }),
     MovieModule,

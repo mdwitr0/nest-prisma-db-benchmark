@@ -12,6 +12,7 @@ import { PersonAdapter } from '@adapters';
 import { BullModule } from '@nestjs/bull';
 import { QueueEnum } from '@enum';
 import { PersonProcessor } from './person.prosessor';
+import { OpenTelemetryModule } from 'nestjs-otel';
 
 @Module({
   imports: [
@@ -32,6 +33,14 @@ import { PersonProcessor } from './person.prosessor';
       name: QueueEnum.MONGO_PERSON,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 500, duration: 1000 },
+    }),
+    OpenTelemetryModule.forRoot({
+      metrics: {
+        hostMetrics: true,
+        apiMetrics: {
+          enable: true,
+        },
+      },
     }),
   ],
   controllers: [PersonController],

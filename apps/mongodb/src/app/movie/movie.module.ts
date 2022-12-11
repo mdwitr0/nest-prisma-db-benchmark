@@ -12,6 +12,7 @@ import { MovieAdapter } from '@adapters';
 import { MovieProcessor } from './movie.prosessor';
 import { BullModule } from '@nestjs/bull';
 import { QueueEnum } from '@enum';
+import { OpenTelemetryModule } from 'nestjs-otel';
 
 @Module({
   imports: [
@@ -32,6 +33,14 @@ import { QueueEnum } from '@enum';
       name: QueueEnum.MONGO_MOVIE,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 500, duration: 1000 },
+    }),
+    OpenTelemetryModule.forRoot({
+      metrics: {
+        hostMetrics: true,
+        apiMetrics: {
+          enable: true,
+        },
+      },
     }),
   ],
   controllers: [MovieController],
