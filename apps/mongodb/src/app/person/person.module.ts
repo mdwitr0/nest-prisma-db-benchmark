@@ -21,7 +21,7 @@ import { PersonProcessor } from './person.prosessor';
         prismaOptions: {
           log: ['info', 'warn', 'error'],
         },
-        middlewares: [mongodbLoggingMiddleware()],
+        middlewares: [mongodbLoggingMiddleware(), mongodbRetryMiddleware()],
       },
     }),
     ApiClientModule.register({
