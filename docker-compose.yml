@@ -65,13 +65,10 @@ services:
     ports:
       - '3000:3000'
   redis:
-    image: 'bitnami/redis:latest'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-      - REDIS_AOF_ENABLED=no
+    image: redis:latest
     restart: always
     volumes:
-      - ./storage/redis/data:/data
+      - ./data:/data
     ports:
       - "6379:6379"
     logging:

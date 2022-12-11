@@ -14,7 +14,7 @@ export class PersonController {
   constructor(
     private readonly service: PersonService,
     private readonly personClient: PersonAdapter,
-    @InjectQueue(QueueEnum.PERSON) private readonly queue: Queue
+    @InjectQueue(QueueEnum.MONGO_PERSON) private readonly queue: Queue
   ) {}
 
   @Get('upsert')
@@ -24,7 +24,7 @@ export class PersonController {
     const { limit, page, end } = pagination;
     range(page, end).subscribe((page) => {
       this.queue.add(
-        QueueProcess.PARSE_PAGE,
+        QueueProcess.MONGO_PARSE_PAGE,
         { limit, page, field: ['id'], search: ['1-9999999999999'] },
         { delay: 1000 * (page - 1) }
       );

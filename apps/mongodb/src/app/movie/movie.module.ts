@@ -29,7 +29,7 @@ import { QueueEnum } from '@enum';
       baseURL: 'https://api.kinopoisk.dev',
     }),
     BullModule.registerQueue({
-      name: QueueEnum.MOVIE,
+      name: QueueEnum.MONGO_MOVIE,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 500, duration: 1000 },
     }),

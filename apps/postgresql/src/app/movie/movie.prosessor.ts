@@ -6,23 +6,23 @@ import { map, mergeMap, switchAll } from 'rxjs';
 import { MovieAdapter } from '@adapters';
 import { MovieService } from './movie.service';
 
-@Processor(QueueEnum.MOVIE)
+@Processor(QueueEnum.POSTGRES_MOVIE)
 export class MovieProcessor {
   private readonly logger = new Logger(MovieProcessor.name);
 
   constructor(
     private readonly service: MovieService,
     private readonly movieClient: MovieAdapter,
-    @InjectQueue(QueueEnum.MOVIE) private readonly queue: Queue
+    @InjectQueue(QueueEnum.POSTGRES_MOVIE) private readonly queue: Queue
   ) {}
 
-  @Process({ name: QueueProcess.UPSERT, concurrency: 10 })
+  @Process({ name: QueueProcess.POSTGRES_UPSERT, concurrency: 10 })
   async upsertProcess(job: Job) {
     this.logger.log(`Upserting movie ${JSON.stringify(job.data.data.kpId)}`);
     await this.service.upsert(job.data.data);
   }
 
-  @Process({ name: QueueProcess.PARSE_PAGE, concurrency: 10 })
+  @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE, concurrency: 10 })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
     this.logger.log(`Parsing pages ${job.data.page}`);
     this.movieClient
@@ -31,7 +31,7 @@ export class MovieProcessor {
         map((res) => res.docs),
         switchAll(),
         mergeMap((movie) =>
-          this.queue.add(QueueProcess.UPSERT, { data: movie })
+          this.queue.add(QueueProcess.POSTGRES_UPSERT, { data: movie })
         )
       )
       .subscribe();

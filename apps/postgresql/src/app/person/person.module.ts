@@ -28,7 +28,7 @@ import { PersonProcessor } from './person.prosessor';
       baseURL: 'https://api.kinopoisk.dev',
     }),
     BullModule.registerQueue({
-      name: QueueEnum.PERSON,
+      name: QueueEnum.POSTGRES_PERSON,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 500, duration: 1000 },
     }),

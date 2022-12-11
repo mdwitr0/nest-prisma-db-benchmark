@@ -21,7 +21,7 @@ export class MovieController {
     private readonly service: MovieService,
     private readonly prisma: PrismaMongodbService,
     private readonly movieClient: MovieAdapter,
-    @InjectQueue(QueueEnum.MOVIE) private readonly queue: Queue
+    @InjectQueue(QueueEnum.MONGO_MOVIE) private readonly queue: Queue
   ) {}
 
   @Get('upsert')
@@ -31,7 +31,7 @@ export class MovieController {
     const { limit, page, end } = pagination;
     range(page, end).subscribe((page) => {
       this.queue.add(
-        QueueProcess.PARSE_PAGE,
+        QueueProcess.MONGO_PARSE_PAGE,
         { page, limit },
         { delay: 1000 * (page - 1) }
       );

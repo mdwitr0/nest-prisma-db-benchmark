@@ -18,7 +18,7 @@ import { MovieService } from './movie.service';
 export class MovieController {
   constructor(
     private readonly service: MovieService,
-    @InjectQueue(QueueEnum.MOVIE) private readonly queue: Queue
+    @InjectQueue(QueueEnum.POSTGRES_MOVIE) private readonly queue: Queue
   ) {}
 
   @Get('upsert')
@@ -28,7 +28,7 @@ export class MovieController {
     const { limit, page, end } = pagination;
     range(page, end).subscribe((page) => {
       this.queue.add(
-        QueueProcess.PARSE_PAGE,
+        QueueProcess.POSTGRES_PARSE_PAGE,
         { page, limit },
         { delay: 1000 * (page - 1) }
       );
