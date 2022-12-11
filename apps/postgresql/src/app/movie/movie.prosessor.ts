@@ -17,7 +17,6 @@ export class MovieProcessor {
 
   @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE, concurrency: 10 })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
-    this.logger.log(`Parsing pages ${job.data.page}`);
     const upserting$ = this.movieClient.findManyFromKp(job.data).pipe(
       map((res) => res.docs),
       switchAll(),
@@ -25,7 +24,9 @@ export class MovieProcessor {
     );
 
     upserting$.pipe(timeInterval()).subscribe((time) => {
-      this.logger.log(`Upserted person in ${time.interval}ms`);
+      this.logger.log(
+        `Update movies from ${job.data.page} page in ${time.interval}ms`
+      );
     });
   }
 }

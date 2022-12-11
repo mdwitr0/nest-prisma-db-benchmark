@@ -26,7 +26,9 @@ export class PersonProcessor {
     );
 
     upserting$.pipe(timeInterval()).subscribe((time) => {
-      this.logger.log(`Upserted person in ${time.interval}ms`);
+      this.logger.log(
+        `Update persons from ${job.data.page} page in ${time.interval}ms`
+      );
     });
   }
 }

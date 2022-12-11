@@ -17,7 +17,6 @@ export class PersonProcessor {
 
   @Process({ name: QueueProcess.MONGO_PARSE_PAGE, concurrency: 5 })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
-    this.logger.log(`Parsing pages ${job.data.page}`);
     const upserting$ = this.personClient.findManyFromKp(job.data).pipe(
       map((res) => res.docs),
       switchAll(),
@@ -26,7 +25,9 @@ export class PersonProcessor {
     );
 
     upserting$.pipe(timeInterval()).subscribe((time) => {
-      this.logger.log(`Upserted person in ${time.interval}ms`);
+      this.logger.log(
+        `Update persons from ${job.data.page} page in ${time.interval}ms`
+      );
     });
   }
 }
