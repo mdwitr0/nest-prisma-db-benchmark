@@ -11,6 +11,7 @@ import {
 import { MovieController } from './movie.controller';
 import { MovieProcessor } from './movie.prosessor';
 import { MovieService } from './movie.service';
+import { OpenTelemetryModule } from 'nestjs-otel';
 
 @Module({
   imports: [
@@ -31,6 +32,14 @@ import { MovieService } from './movie.service';
       name: QueueEnum.POSTGRES_MOVIE,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 500, duration: 1000 },
+    }),
+    OpenTelemetryModule.forRoot({
+      metrics: {
+        hostMetrics: true,
+        apiMetrics: {
+          enable: true,
+        },
+      },
     }),
   ],
   controllers: [MovieController],

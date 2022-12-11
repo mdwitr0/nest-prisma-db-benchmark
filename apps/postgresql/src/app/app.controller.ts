@@ -1,27 +1,9 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
-import { AppService } from './app.service';
-import { Movie, Prisma, PrismaPostgresqlService } from '@prisma/postgresql';
-import {
-  auditTime,
-  catchError,
-  from,
-  map,
-  mergeMap,
-  Observable,
-  of,
-  range,
-  switchAll,
-  tap,
-} from 'rxjs';
-import {
-  CreatePaginationQueryDto,
-  PaginationQueryDto,
-  PaginationResponseDto,
-  SearchAllQueryDto,
-} from '@dto';
-import { TransformPipe } from '@pipes';
 import { MovieAdapter } from '@adapters';
+import { PrismaPostgresqlService } from '@prisma/postgresql';
+import { AppService } from './app.service';
+import { Span } from 'nestjs-otel';
 
 @Controller()
 export class AppController {
@@ -31,6 +13,7 @@ export class AppController {
     private readonly movieClient: MovieAdapter
   ) {}
 
+  @Span()
   @Get('metrics')
   async metrics() {
     return this.prisma.$metrics.prometheus({

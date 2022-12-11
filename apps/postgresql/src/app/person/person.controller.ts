@@ -8,6 +8,7 @@ import { TransformPipe } from '@pipes';
 import { Queue } from 'bull';
 import { range } from 'rxjs';
 import { PersonService } from './person.service';
+import { Span } from 'nestjs-otel';
 
 @Controller('person')
 export class PersonController {
@@ -17,6 +18,7 @@ export class PersonController {
     @InjectQueue(QueueEnum.POSTGRES_PERSON) private readonly queue: Queue
   ) {}
 
+  @Span()
   @Get('upsert')
   upsert(@Query(TransformPipe) pagination: CreatePaginationQueryDto): {
     message: string;

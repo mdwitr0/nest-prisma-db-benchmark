@@ -8,6 +8,7 @@ import { MovieAdapter } from '@adapters';
 import { BullModule } from '@nestjs/bull';
 import { MovieModule } from './movie/movie.module';
 import { PersonModule } from './person/person.module';
+import { OpenTelemetryModule } from 'nestjs-otel';
 
 @Module({
   imports: [
@@ -24,6 +25,14 @@ import { PersonModule } from './person/person.module';
     }),
     MovieModule,
     PersonModule,
+    OpenTelemetryModule.forRoot({
+      metrics: {
+        hostMetrics: true,
+        apiMetrics: {
+          enable: true,
+        },
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [
