@@ -2,6 +2,7 @@ import { KpToMovieDto } from '@dto';
 import { ApiClientService, Movie } from '@kinopoiskdev-client';
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
+import { Span } from 'nestjs-otel';
 import { Observable, map } from 'rxjs';
 
 export interface MovieRequest {
@@ -25,12 +26,14 @@ export type MoviePaginatedResponse = {
 export class MovieAdapter {
   constructor(private readonly api: ApiClientService) {}
 
+  @Span()
   findByIdFromKp(id: number): Observable<KpToMovieDto> {
     return this.api
       .findMovieById({ id })
       .pipe(map((movie) => this.paintToInstance(movie)));
   }
 
+  @Span()
   findManyFromKp(request: MovieRequest): Observable<MoviePaginatedResponse> {
     return this.api.findManyMovies(request).pipe(
       map((res) => ({
