@@ -20,6 +20,7 @@
       "@dto": ["libs/dto/src/index.ts"],
       "@enum": ["libs/enum/src/index.ts"],
       "@kinopoiskdev-client": ["libs/kinopoiskdev-client/src/index.ts"],
+      "@tracing": ["libs/tracing/src/index.ts"],
       "@pipes": ["libs/pipes/src/index.ts"],
       "@prisma/mongodb": ["libs/prisma-mongodb/src/index.ts"],
       "@prisma/postgresql": ["libs/prisma-postgresql/src/index.ts"],
