@@ -1,0 +1,39 @@
+import { Module } from '@nestjs/common';
+
+import { MovieAdapter } from '@adapters';
+import { QueueEnum } from '@enum';
+import { ApiClientModule } from '@kinopoiskdev-client';
+import { BullModule } from '@nestjs/bull';
+import {
+  postgresqlLoggingMiddleware,
+  PrismaPostgresqlModule,
+} from '@prisma/postgresql';
+import { MovieController } from './movie.controller';
+import { MovieProcessor } from './movie.prosessor';
+import { MovieService } from './movie.service';
+
+@Module({
+  imports: [
+    PrismaPostgresqlModule.forRoot({
+      isGlobal: true,
+      prismaServiceOptions: {
+        prismaOptions: {
+          log: ['info', 'warn', 'error'],
+        },
+        middlewares: [postgresqlLoggingMiddleware()],
+      },
+    }),
+    ApiClientModule.register({
+      apiKey: process.env.API_KEY,
+      baseURL: 'https://api.kinopoisk.dev',
+    }),
+    BullModule.registerQueue({
+      name: QueueEnum.MOVIE,
+      defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
+      limiter: { max: 500, duration: 1000 },
+    }),
+  ],
+  controllers: [MovieController],
+  providers: [MovieService, MovieAdapter, MovieProcessor],
+})
+export class MovieModule {}
