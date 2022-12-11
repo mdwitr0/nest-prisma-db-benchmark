@@ -11,7 +11,6 @@ CREATE TYPE "PersonSex" AS ENUM ('MALE', 'FEMALE');
 CREATE TABLE "MovieNameItem" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "movieId" INTEGER,
 
     CONSTRAINT "MovieNameItem_pkey" PRIMARY KEY ("id")
 );
@@ -22,6 +21,7 @@ CREATE TABLE "MovieExternalId" (
     "imdb" TEXT,
     "tmdb" INTEGER,
     "kpHD" TEXT,
+    "movieId" INTEGER,
 
     CONSTRAINT "MovieExternalId_pkey" PRIMARY KEY ("id")
 );
@@ -29,12 +29,13 @@ CREATE TABLE "MovieExternalId" (
 -- CreateTable
 CREATE TABLE "MovieRating" (
     "id" SERIAL NOT NULL,
-    "kp" DOUBLE PRECISION NOT NULL,
-    "imdb" DOUBLE PRECISION NOT NULL,
+    "kp" DOUBLE PRECISION,
+    "imdb" DOUBLE PRECISION,
     "await" DOUBLE PRECISION,
     "filmCritics" DOUBLE PRECISION,
     "russianFilmCritics" DOUBLE PRECISION,
     "tmdb" DOUBLE PRECISION,
+    "movieId" INTEGER,
 
     CONSTRAINT "MovieRating_pkey" PRIMARY KEY ("id")
 );
@@ -63,7 +64,6 @@ CREATE TABLE "MovieOnPerson" (
     "id" SERIAL NOT NULL,
     "kpId" INTEGER NOT NULL,
     "movieKpId" INTEGER NOT NULL,
-    "description" TEXT NOT NULL,
     "profession" "ProfessionType"[],
     "assignedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -85,11 +85,24 @@ CREATE TABLE "Movie" (
     "type" "MovieType",
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "movieExternalIdId" INTEGER,
-    "movieRatingId" INTEGER NOT NULL,
 
     CONSTRAINT "Movie_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateTable
+CREATE TABLE "_MovieToMovieNameItem" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MovieNameItem_name_key" ON "MovieNameItem"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MovieExternalId_movieId_key" ON "MovieExternalId"("movieId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MovieRating_movieId_key" ON "MovieRating"("movieId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Person_kpId_key" ON "Person"("kpId");
@@ -100,8 +113,17 @@ CREATE UNIQUE INDEX "MovieOnPerson_kpId_key" ON "MovieOnPerson"("kpId");
 -- CreateIndex
 CREATE UNIQUE INDEX "Movie_kpId_key" ON "Movie"("kpId");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "_MovieToMovieNameItem_AB_unique" ON "_MovieToMovieNameItem"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_MovieToMovieNameItem_B_index" ON "_MovieToMovieNameItem"("B");
+
 -- AddForeignKey
-ALTER TABLE "MovieNameItem" ADD CONSTRAINT "MovieNameItem_movieId_fkey" FOREIGN KEY ("movieId") REFERENCES "Movie"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "MovieExternalId" ADD CONSTRAINT "MovieExternalId_movieId_fkey" FOREIGN KEY ("movieId") REFERENCES "Movie"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MovieRating" ADD CONSTRAINT "MovieRating_movieId_fkey" FOREIGN KEY ("movieId") REFERENCES "Movie"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MovieOnPerson" ADD CONSTRAINT "MovieOnPerson_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -110,7 +132,7 @@ ALTER TABLE "MovieOnPerson" ADD CONSTRAINT "MovieOnPerson_personId_fkey" FOREIGN
 ALTER TABLE "MovieOnPerson" ADD CONSTRAINT "MovieOnPerson_movieId_fkey" FOREIGN KEY ("movieId") REFERENCES "Movie"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Movie" ADD CONSTRAINT "Movie_movieExternalIdId_fkey" FOREIGN KEY ("movieExternalIdId") REFERENCES "MovieExternalId"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "_MovieToMovieNameItem" ADD CONSTRAINT "_MovieToMovieNameItem_A_fkey" FOREIGN KEY ("A") REFERENCES "Movie"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Movie" ADD CONSTRAINT "Movie_movieRatingId_fkey" FOREIGN KEY ("movieRatingId") REFERENCES "MovieRating"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "_MovieToMovieNameItem" ADD CONSTRAINT "_MovieToMovieNameItem_B_fkey" FOREIGN KEY ("B") REFERENCES "MovieNameItem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
