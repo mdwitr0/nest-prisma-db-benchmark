@@ -3,6 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:latest
+    restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -12,6 +13,7 @@ services:
       - '5433:5432'
   mongo1:
     image: mongo:4.2
+    restart: always
     container_name: mongo1
     command: [ "--replSet", "my-replica-set", "--bind_ip_all", "--port", "30001" ]
     volumes:
@@ -26,6 +28,7 @@ services:
       MONGO_INITDB_DATABASE: test
   mongo2:
     image: mongo:4.2
+    restart: always
     container_name: mongo2
     command: [ "--replSet", "my-replica-set", "--bind_ip_all", "--port", "30002" ]
     volumes:
@@ -34,6 +37,7 @@ services:
       - '30002:30002'
   mongo3:
     image: mongo:4.2
+    restart: always
     container_name: mongo3
     command: [ "--replSet", "my-replica-set", "--bind_ip_all", "--port", "30003" ]
     volumes:
@@ -42,6 +46,7 @@ services:
       - '30003:30003'
   prometheus:
     image: prom/prometheus
+    restart: always
     volumes:
       - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-storage:/prometheus
@@ -54,6 +59,7 @@ services:
       - "host.docker.internal:host-gateway"
   grafana:
     image: grafana/grafana
+    restart: always
     volumes:
       - grafana-storage:/var/lib/grafana
     depends_on:
@@ -76,7 +82,7 @@ services:
   jaeger:
     image: jaegertracing/all-in-one
     container_name: jaeger
-    restart: on-failure
+    restart: always
     ports:
       - '5775:5775/udp'
       - '6831:6831/udp'
