@@ -1,6 +1,12 @@
 # Nestjs + Prisma databases benchmark
 Проект для тестирования производительности баз данных, используемых в Nestjs + Prisma.
 
+Что используется в этом репо:
+* NestJS `9.0.0`
+* Prisma `4.7.1`
+* Platform fastify  `9.2.1`
+* PostgreSQL `15.1`
+* MongoDB `6.0.1`
 ## Исследуемые кейсы и сценарии
 Сравнение не реляционной и реляционной db (mongodb, postgres).
 - [ ] Поиск
