@@ -24,10 +24,13 @@
 ## Модель базы данных
 ### Postgres
 ![Postgres](./docs/images/pg-erd.svg)
+Конфигурация кластера:
+* Временно используется 1 экземпляр. 
 
+___
 ### Mongodb
 ![Mongodb](./docs/images/mongo-erd.svg)
-Для mongodb была использована следующая конфигурация:
+Конфигурация кластера:  
 * Config Server (3 member replica set): `configsvr01`, `configsvr02`, `configsvr03`
 * 3 Shards (each a 3 member PSS replica set):
   * `shard01-a`, `shard01-b`, `shard01-c` 
