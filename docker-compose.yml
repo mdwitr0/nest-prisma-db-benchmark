@@ -33,6 +33,9 @@ services:
       - prometheus
     environment:
       - TZ="Europe/Moscow"
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
     networks:
       - default
     ports:
@@ -46,6 +49,9 @@ services:
       - "6379:6379"
     logging:
       driver: none
+    networks:
+      - default
+
   jaeger:
     image: jaegertracing/all-in-one
     container_name: jaeger
@@ -243,6 +249,9 @@ services:
     ports:
       - 27130:27017
     restart: always
+
+networks:
+    default:
 
 volumes:
   mongodb_cluster_router01_db:
