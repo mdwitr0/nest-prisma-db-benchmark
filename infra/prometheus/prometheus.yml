@@ -3,7 +3,11 @@ scrape_configs:
     scrape_interval: 1s
 
     static_configs:
-      - targets: ['host.docker.internal:3112', 'host.docker.internal:3111']
+      - targets: ['host.docker.internal:3111']
         labels:
           service: 'prisma-metrics'
+          group: 'production'
+      - targets: ['host.docker.internal:8081']
+        labels:
+          service: 'nestjs-metrics'
           group: 'production'

@@ -12,6 +12,7 @@ import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { PrismaInstrumentation } from '@prisma/instrumentation';
 import * as process from 'process';
+import {PrometheusExporter} from "@opentelemetry/exporter-prometheus";
 
 export const initTracing = async (serviceName: string): Promise<void> => {
   const logger = new Logger('Tracing');
@@ -20,6 +21,9 @@ export const initTracing = async (serviceName: string): Promise<void> => {
   const spanProcessor = new SimpleSpanProcessor(traceExporter);
 
   const sdk = new opentelemetry.NodeSDK({
+    metricReader: new PrometheusExporter({
+      port: 8081,
+    }),
     resource: new Resource({
       [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
     }),
