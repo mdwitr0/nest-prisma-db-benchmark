@@ -1,7 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
-import { CompositePropagator } from '@opentelemetry/core';
+import {
+  CompositePropagator,
+  W3CBaggagePropagator,
+  W3CTraceContextPropagator,
+} from '@opentelemetry/core';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
@@ -12,7 +16,9 @@ import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { PrismaInstrumentation } from '@prisma/instrumentation';
 import * as process from 'process';
-import {PrometheusExporter} from "@opentelemetry/exporter-prometheus";
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
+import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 
 export const initTracing = async (serviceName: string): Promise<void> => {
   const logger = new Logger('Tracing');
@@ -31,6 +37,8 @@ export const initTracing = async (serviceName: string): Promise<void> => {
     textMapPropagator: new CompositePropagator({
       propagators: [
         new JaegerPropagator(),
+        new W3CTraceContextPropagator(),
+        new W3CBaggagePropagator(),
         new B3Propagator(),
         new B3Propagator({
           injectEncoding: B3InjectEncoding.MULTI_HEADER,
@@ -39,6 +47,8 @@ export const initTracing = async (serviceName: string): Promise<void> => {
     }),
     instrumentations: [
       getNodeAutoInstrumentations(),
+      new ExpressInstrumentation(),
+      new NestInstrumentation(),
       new HttpInstrumentation(),
       new PrismaInstrumentation(),
     ],

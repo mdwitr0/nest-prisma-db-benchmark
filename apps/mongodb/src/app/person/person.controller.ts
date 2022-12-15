@@ -16,7 +16,7 @@ export class PersonController {
     private readonly service: PersonService,
     private readonly personClient: PersonAdapter,
     @InjectQueue(QueueEnum.MONGO_PERSON) private readonly queue: Queue
-  ) {}
+  ) { }
 
   @Span()
   @Get('upsert')

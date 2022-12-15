@@ -46,4 +46,4 @@ import { OpenTelemetryModule } from 'nestjs-otel';
   controllers: [PersonController],
   providers: [PersonService, PersonAdapter, PersonProcessor],
 })
-export class PersonModule {}
+export class PersonModule { }
