@@ -9,13 +9,13 @@ import { initTracing } from '@tracing';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  await initTracing('mongodb');
+  await initTracing('mongodb', 8082);
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter()
   );
-  await app.listen(3111);
+  await app.listen(3112);
 
   logger.log('🔥 Mongodb application is running on: ' + (await app.getUrl()));
 }

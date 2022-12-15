@@ -20,7 +20,10 @@ import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 
-export const initTracing = async (serviceName: string): Promise<void> => {
+export const initTracing = async (
+  serviceName: string,
+  metricsPort: number
+): Promise<void> => {
   const logger = new Logger('Tracing');
   const traceExporter = new JaegerExporter();
 
@@ -28,7 +31,7 @@ export const initTracing = async (serviceName: string): Promise<void> => {
 
   const sdk = new opentelemetry.NodeSDK({
     metricReader: new PrometheusExporter({
-      port: 8081,
+      port: metricsPort,
     }),
     resource: new Resource({
       [SemanticResourceAttributes.SERVICE_NAME]: serviceName,

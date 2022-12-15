@@ -9,7 +9,7 @@ import { initTracing } from '@tracing';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  await initTracing('potgresql');
+  await initTracing('potgresql', 8081);
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
