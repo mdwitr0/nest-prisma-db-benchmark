@@ -1,16 +1,33 @@
 version: '3.8'
 
 services:
-  postgres:
+  postgresql:
     image: postgres:15.1
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
     ports:
       - '5433:5432'
+    networks:
+      - default
+
+  pgbouncer:
+    image: bitnami/pgbouncer:latest
+    ports:
+      - 6432:6432
+    depends_on:
+      - postgresql
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - PGBOUNCER_MODE=transaction
+    networks:
+      - default
+
   prometheus:
     image: prom/prometheus
     restart: always
@@ -44,7 +61,7 @@ services:
     image: redis:latest
     restart: always
     volumes:
-      - ./data:/data
+      - redis:/data
     ports:
       - "6379:6379"
     logging:
@@ -91,7 +108,7 @@ services:
     links:
       - router01
 
-## Config Servers
+  ## Config Servers
   configsvr01:
     image: mongo:6.0.1
     container_name: mongo-config-01
@@ -134,7 +151,7 @@ services:
     links:
       - configsvr02
 
-## Shards
+  ## Shards
   ## Shards 01
 
   shard01-a:
@@ -251,7 +268,8 @@ services:
     restart: always
 
 networks:
-    default:
+  default:
+    driver: bridge
 
 volumes:
   mongodb_cluster_router01_db:
@@ -296,7 +314,8 @@ volumes:
   mongodb_cluster_shard03_c_db:
   mongodb_cluster_shard03_c_config:
 
-  postgres:
+  postgres_volume:
   mongo:
+  redis:
   grafana-storage:
   prometheus-storage:
