@@ -1,32 +1,32 @@
 version: '3.8'
 
 services:
-  postgresql:
+  postgres:
     image: postgres:15.1
     restart: always
+    command: postgres -c 'max_connections=1000'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    volumes:
-      - postgres_volume:/var/lib/postgresql/data
+    networks:
+      - default
     ports:
       - '5433:5432'
-    networks:
-      - default
 
   pgbouncer:
-    image: bitnami/pgbouncer:latest
-    ports:
-      - 6432:6432
-    depends_on:
-      - postgresql
+    image: brainsam/pgbouncer:latest
+    restart: always
     environment:
-      - POSTGRESQL_USERNAME=postgres
-      - POSTGRESQL_PASSWORD=postgres
-      - PGBOUNCER_MODE=transaction
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - POOL_MODE=transaction
+      - MAX_CLIENT_CONN=1000
     networks:
       - default
+    ports:
+      - "6432:6432"
 
   prometheus:
     image: prom/prometheus
@@ -314,7 +314,7 @@ volumes:
   mongodb_cluster_shard03_c_db:
   mongodb_cluster_shard03_c_config:
 
-  postgres_volume:
+  postgresql_data:
   mongo:
   redis:
   grafana-storage:
