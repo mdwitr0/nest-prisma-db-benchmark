@@ -276,21 +276,6 @@ services:
       driver: loki
       options:
         loki-url: http://localhost:3100/loki/api/v1/push
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./etc/prometheus.yaml:/etc/prometheus.yaml
-    entrypoint:
-      - /bin/prometheus
-      - --config.file=/etc/prometheus.yaml
-    ports:
-      - "9090:9090"
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   grafana:
     image: grafana/grafana:9.1.1-ubuntu
@@ -313,22 +298,21 @@ services:
       driver: loki
       options:
         loki-url: http://localhost:3100/loki/api/v1/push
-
-  otel-collector:
-    image: otel/opentelemetry-collector-dev:latest
-    command: ["--config=/etc/otel-collector-config.yaml"]
+  prometheus:
+    image: prom/prometheus:latest
     volumes:
-      - ./etc/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./etc/prometheus.yaml:/etc/prometheus.yaml
+    entrypoint:
+      - /bin/prometheus
+      - --config.file=/etc/prometheus.yaml
     ports:
-      - "1888:1888"   # pprof extension
-      - "8888:8888"   # Prometheus metrics exposed by the collector
-      - "8889:8889"   # Prometheus exporter metrics
-      - "13133:13133" # health_check extension
-      - "4317"        # OTLP gRPC receiver
-      - "55670:55679" # zpages extension
-    depends_on:
-      - tempo
-      - prometheus
+      - "9090:9090"
+    logging:
+      driver: loki
+      options:
+        loki-url: http://localhost:3100/loki/api/v1/push
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
 networks:
