@@ -6,6 +6,7 @@ import {
 import { AppModule } from './app/app.module';
 import { Logger } from '@nestjs/common';
 import { initTracing } from '@tracing';
+import { Logger as PinoLogger } from 'nestjs-pino';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -15,6 +16,9 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter()
   );
+  app.useLogger(app.get(PinoLogger));
+
+  app.enableShutdownHooks();
   await app.listen(3112);
 
   logger.log(

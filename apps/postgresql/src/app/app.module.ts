@@ -9,6 +9,7 @@ import { BullModule } from '@nestjs/bull';
 import { MovieModule } from './movie/movie.module';
 import { PersonModule } from './person/person.module';
 import { OpenTelemetryModule } from 'nestjs-otel';
+import { LoggerModule } from '@logger';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { OpenTelemetryModule } from 'nestjs-otel';
         },
       },
     }),
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [
