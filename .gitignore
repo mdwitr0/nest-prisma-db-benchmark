@@ -4,7 +4,9 @@
 /dist
 /tmp
 /out-tsc
-data
+data/logs
+data/loki-data
+data/tempo-data
 # dependencies
 node_modules
 

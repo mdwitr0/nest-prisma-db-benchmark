@@ -6,6 +6,7 @@ import { Job } from 'bull';
 import { Span } from 'nestjs-otel';
 import {
   catchError,
+  lastValueFrom,
   map,
   mergeMap,
   of,
@@ -24,25 +25,22 @@ export class PersonProcessor {
     private readonly personClient: PersonAdapter
   ) {}
 
-  @Span()
   @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
-    this.logger.log(`Parsing pages ${job.data.page}`);
-    const upserting$ = this.personClient.findManyFromKp(job.data).pipe(
-      map((res) => res.docs),
-      switchAll(),
-      mergeMap(async (movie) => await this.service.upsert(movie)),
-      catchError((err) => {
-        this.logger.error(err);
-        return of(null);
-      }),
-      toArray()
-    );
-
-    upserting$.pipe(timeInterval()).subscribe((time) => {
-      this.logger.log(
-        `Update persons from ${job.data.page} page in ${time.interval}ms`
+    try {
+      const persons = await lastValueFrom(
+        this.personClient.findManyFromKp(job.data).pipe(map((res) => res.docs))
       );
-    });
+      const start = Date.now();
+      for (const person of persons) {
+        await this.service.upsert(person);
+      }
+
+      this.logger.log(
+        `Update persons from ${job.data.page} page in ${Date.now() - start} ms`
+      );
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }
