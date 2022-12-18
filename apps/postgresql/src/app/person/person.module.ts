@@ -1,17 +1,16 @@
 import { Module } from '@nestjs/common';
 
-import { PersonController } from './person.controller';
-import { PersonService } from './person.service';
+import { PersonAdapter } from '@adapters';
+import { QueueEnum } from '@enum';
+import { ApiClientModule } from '@kinopoiskdev-client';
+import { BullModule } from '@nestjs/bull';
 import {
   PrismaPostgresqlModule,
   postgresqlLoggingMiddleware,
 } from '@prisma/postgresql';
-import { ApiClientModule } from '@kinopoiskdev-client';
-import { PersonAdapter } from '@adapters';
-import { BullModule } from '@nestjs/bull';
-import { QueueEnum } from '@enum';
+import { PersonController } from './person.controller';
 import { PersonProcessor } from './person.prosessor';
-import { OpenTelemetryModule } from 'nestjs-otel';
+import { PersonService } from './person.service';
 
 @Module({
   imports: [
@@ -32,14 +31,6 @@ import { OpenTelemetryModule } from 'nestjs-otel';
       name: QueueEnum.POSTGRES_PERSON,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 1, duration: 1000 },
-    }),
-    OpenTelemetryModule.forRoot({
-      metrics: {
-        hostMetrics: true,
-        apiMetrics: {
-          enable: true,
-        },
-      },
     }),
   ],
   controllers: [PersonController],

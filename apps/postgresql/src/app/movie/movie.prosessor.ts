@@ -3,14 +3,13 @@ import { QueueEnum, QueueProcess } from '@enum';
 import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { Span } from 'nestjs-otel';
 import {
   catchError,
   map,
   mergeMap,
+  of,
   switchAll,
   timeInterval,
-  of,
   toArray,
 } from 'rxjs';
 import { MovieService } from './movie.service';
@@ -24,7 +23,6 @@ export class MovieProcessor {
     private readonly movieClient: MovieAdapter
   ) {}
 
-  @Span()
   @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
     const upserting$ = this.movieClient.findManyFromKp(job.data).pipe(

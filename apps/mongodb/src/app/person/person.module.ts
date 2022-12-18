@@ -34,16 +34,8 @@ import { OpenTelemetryModule } from 'nestjs-otel';
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 1, duration: 1000 },
     }),
-    OpenTelemetryModule.forRoot({
-      metrics: {
-        hostMetrics: true,
-        apiMetrics: {
-          enable: true,
-        },
-      },
-    }),
   ],
   controllers: [PersonController],
   providers: [PersonService, PersonAdapter, PersonProcessor],
 })
-export class PersonModule { }
+export class PersonModule {}

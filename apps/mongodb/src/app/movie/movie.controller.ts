@@ -11,7 +11,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { TransformPipe } from '@pipes';
 import { Movie, Prisma } from '@prisma/mongodb';
 import { Queue } from 'bull';
-import { Span, TraceService } from 'nestjs-otel';
 import { Observable, range } from 'rxjs';
 import { MovieService } from './movie.service';
 
@@ -22,7 +21,6 @@ export class MovieController {
     @InjectQueue(QueueEnum.MONGO_MOVIE) private readonly queue: Queue
   ) {}
 
-  @Span('error-span')
   @Get('upsert')
   upsert(@Query(TransformPipe) pagination: CreatePaginationQueryDto): {
     message: string;
@@ -34,13 +32,11 @@ export class MovieController {
     return { message: 'ok' };
   }
 
-  @Span()
   @Get('find/:id')
   findMovieById(@Param('id', ParseIntPipe) id: number): Promise<Movie> {
     return this.service.findUnique({ kpId: id });
   }
 
-  @Span()
   @Get('find/all')
   findManyMovie(
     @Query(TransformPipe) pagination: PaginationQueryDto,

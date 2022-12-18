@@ -24,7 +24,6 @@ export class MovieProcessor {
     private readonly movieClient: MovieAdapter
   ) {}
 
-  @Span()
   @Process({ name: QueueProcess.MONGO_PARSE_PAGE })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
     const upserting$ = this.movieClient.findManyFromKp(job.data).pipe(

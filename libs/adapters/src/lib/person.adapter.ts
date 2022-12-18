@@ -26,14 +26,12 @@ export type PersonPaginatedResponse = {
 export class PersonAdapter {
   constructor(private readonly api: ApiClientService) {}
 
-  @Span()
   findByIdFromKp(id: number): Observable<KpToMoviePersonDto> {
     return this.api
       .findPersonById({ id })
       .pipe(map((person) => this.painToInstance(person)));
   }
 
-  @Span()
   findManyFromKp(request: PersonRequest): Observable<PersonPaginatedResponse> {
     return this.api.findManyPersons(request).pipe(
       map((res) => ({

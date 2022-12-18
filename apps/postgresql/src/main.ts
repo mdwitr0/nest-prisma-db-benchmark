@@ -15,7 +15,7 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter()
   );
-  await app.listen(3111);
+  await app.listen(3112);
 
   logger.log(
     '🔥 Postgresql application is running on: ' + (await app.getUrl())

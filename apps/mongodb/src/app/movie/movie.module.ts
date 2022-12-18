@@ -34,14 +34,6 @@ import { OpenTelemetryModule } from 'nestjs-otel';
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 1, duration: 1000 },
     }),
-    OpenTelemetryModule.forRoot({
-      metrics: {
-        hostMetrics: true,
-        apiMetrics: {
-          enable: true,
-        },
-      },
-    }),
   ],
   controllers: [MovieController],
   providers: [MovieService, MovieAdapter, MovieProcessor],

@@ -15,7 +15,7 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter()
   );
-  await app.listen(3112);
+  await app.listen(3111);
 
   logger.log('🔥 Mongodb application is running on: ' + (await app.getUrl()));
 }

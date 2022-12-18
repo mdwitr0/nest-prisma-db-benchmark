@@ -7,7 +7,6 @@ import { Span } from 'nestjs-otel';
 export class PersonService {
   constructor(private readonly prisma: PrismaPostgresqlService) {}
 
-  @Span()
   async upsert(person: KpToMoviePersonDto): Promise<Person> {
     return this.prisma.person.upsert({
       where: { kpId: person.kpId },

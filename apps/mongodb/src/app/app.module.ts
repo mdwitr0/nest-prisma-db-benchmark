@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { BullModule } from '@nestjs/bull';
-import { PrismaMongodbModule } from '@prisma/mongodb';
+import { mongodbLoggingMiddleware, PrismaMongodbModule } from '@prisma/mongodb';
 import { OpenTelemetryModule } from 'nestjs-otel';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,6 +19,8 @@ import { PersonModule } from './person/person.module';
         port: 6379,
       },
     }),
+    MovieModule,
+    PersonModule,
     OpenTelemetryModule.forRoot({
       metrics: {
         hostMetrics: true,
@@ -27,10 +29,8 @@ import { PersonModule } from './person/person.module';
         },
       },
     }),
-    MovieModule,
-    PersonModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -5,14 +5,12 @@ import { QueueEnum } from '@enum';
 import { ApiClientModule } from '@kinopoiskdev-client';
 import { BullModule } from '@nestjs/bull';
 import {
-  postgresqlLoggingMiddleware,
-  postgresqlRetryMiddleware,
   PrismaPostgresqlModule,
+  postgresqlLoggingMiddleware,
 } from '@prisma/postgresql';
 import { MovieController } from './movie.controller';
 import { MovieProcessor } from './movie.prosessor';
 import { MovieService } from './movie.service';
-import { OpenTelemetryModule } from 'nestjs-otel';
 
 @Module({
   imports: [
@@ -33,14 +31,6 @@ import { OpenTelemetryModule } from 'nestjs-otel';
       name: QueueEnum.POSTGRES_MOVIE,
       defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
       limiter: { max: 1, duration: 1000 },
-    }),
-    OpenTelemetryModule.forRoot({
-      metrics: {
-        hostMetrics: true,
-        apiMetrics: {
-          enable: true,
-        },
-      },
     }),
   ],
   controllers: [MovieController],
