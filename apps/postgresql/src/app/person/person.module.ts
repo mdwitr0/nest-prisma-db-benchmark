@@ -29,8 +29,8 @@ import { PersonService } from './person.service';
     }),
     BullModule.registerQueue({
       name: QueueEnum.POSTGRES_PERSON,
-      defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
-      limiter: { max: 1, duration: 1000 },
+      defaultJobOptions: { removeOnComplete: true, removeOnFail: 2, lifo: true },
+      limiter: { max: 1, duration: 1000,  },
     }),
   ],
   controllers: [PersonController],
