@@ -3,16 +3,9 @@ import { QueueEnum, QueueProcess } from '@enum';
 import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { Span } from 'nestjs-otel';
 import {
-  catchError,
   lastValueFrom,
   map,
-  mergeMap,
-  of,
-  switchAll,
-  timeInterval,
-  toArray,
 } from 'rxjs';
 import { PersonService } from './person.service';
 
@@ -25,7 +18,7 @@ export class PersonProcessor {
     private readonly personClient: PersonAdapter
   ) {}
 
-  @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE })
+  @Process({ name: QueueProcess.POSTGRES_PARSE_PAGE, concurrency: 5 })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
     try {
       const persons = await lastValueFrom(

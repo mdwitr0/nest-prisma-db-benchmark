@@ -15,7 +15,7 @@ export class PersonProcessor {
     private readonly personClient: PersonAdapter
   ) {}
 
-  @Process({ name: QueueProcess.MONGO_PARSE_PAGE })
+  @Process({ name: QueueProcess.MONGO_PARSE_PAGE, concurrency: 5 })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
     try {
       const persons = await lastValueFrom(

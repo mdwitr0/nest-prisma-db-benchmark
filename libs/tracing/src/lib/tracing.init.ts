@@ -23,6 +23,7 @@ export const initTracing = async (
 
   const sdk = new opentelemetry.NodeSDK({
     metricReader: new PrometheusExporter({
+      host: 'localhost',
       port: metricsPort,
     }),
     spanProcessor: new BatchSpanProcessor(new JaegerExporter()),
