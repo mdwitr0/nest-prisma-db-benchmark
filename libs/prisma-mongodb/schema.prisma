@@ -4,13 +4,6 @@ generator client {
   previewFeatures = ["fullTextIndex", "fullTextSearch"]
   output          = "./src/generated/client"
 }
-
-generator erd {
-  provider = "prisma-erd-generator"
-  output   = "../../docs/images/mongo-erd.svg"
-  theme    = "dark"
-}
-
 datasource db {
   provider = "mongodb"
   url      = env("MONGODB_DATABASE_URL")
