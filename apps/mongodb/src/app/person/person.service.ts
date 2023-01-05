@@ -13,4 +13,17 @@ export class PersonService {
       update: person,
     });
   }
+
+  async upsertMany(persons: KpToMoviePersonDto[]): Promise<void> {
+    this.prisma.$transaction([
+      this.prisma.person.deleteMany({
+        where: {
+          kpId: {
+            in: persons.map((p) => p.kpId),
+          },
+        },
+      }),
+      this.prisma.person.createMany({ data: persons }),
+    ]);
+  }
 }

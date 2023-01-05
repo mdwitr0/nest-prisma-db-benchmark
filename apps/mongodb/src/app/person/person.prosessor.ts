@@ -17,20 +17,16 @@ export class PersonProcessor {
 
   @Process({ name: QueueProcess.MONGO_PARSE_PAGE })
   async parsePagesProcess(job: Job<{ page: number; limit: number }>) {
-    try {
-      const persons = await lastValueFrom(
-        this.personClient.findManyFromKp(job.data).pipe(map((res) => res.docs))
-      );
-      const start = Date.now();
-      for (const person of persons) {
-        await this.service.upsert(person);
-      }
+    const persons = await lastValueFrom(
+      this.personClient.findManyFromKp(job.data).pipe(map((res) => res.docs))
+    );
+    const start = Date.now();
+    await this.service.upsertMany(persons);
 
-      this.logger.log(
-        `Update persons ${persons.length} from ${job.data.page} page in ${Date.now() - start} ms`
-      );
-    } catch (error) {
-      this.logger.error(error);
-    }
+    this.logger.log(
+      `Update persons ${persons.length} from ${job.data.page} page in ${
+        Date.now() - start
+      } ms`
+    );
   }
 }
