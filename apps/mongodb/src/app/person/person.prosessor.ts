@@ -21,12 +21,12 @@ export class PersonProcessor {
       this.personClient.findManyFromKp(job.data).pipe(map((res) => res.docs))
     );
     const start = Date.now();
-    await this.service.upsertMany(persons);
-
-    this.logger.log(
-      `Update persons ${persons.length} from ${job.data.page} page in ${
-        Date.now() - start
-      } ms`
-    );
+    this.service.upsertMany(persons).then(() => {
+      this.logger.log(
+        `Update persons ${persons.length} from ${job.data.page} page in ${
+          Date.now() - start
+        } ms`
+      );
+    });
   }
 }

@@ -31,8 +31,8 @@ import { OpenTelemetryModule } from 'nestjs-otel';
     }),
     BullModule.registerQueue({
       name: QueueEnum.MONGO_PERSON,
-      defaultJobOptions: { removeOnComplete: true, removeOnFail: 2, lifo: true },
-      limiter: { max: 1, duration: 1000 },
+      defaultJobOptions: { removeOnComplete: true, removeOnFail: 2 },
+      limiter: { max: 1, duration: 2000 },
     }),
   ],
   controllers: [PersonController],
