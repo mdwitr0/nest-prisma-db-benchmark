@@ -1,7 +1,6 @@
 import { KpToMoviePersonDto } from '@dto';
 import { Injectable } from '@nestjs/common';
 import { Person, PrismaPostgresqlService } from '@prisma/postgresql';
-import { Span } from 'nestjs-otel';
 
 @Injectable()
 export class PersonService {
@@ -13,5 +12,18 @@ export class PersonService {
       create: person,
       update: person,
     });
+  }
+
+  async upsertMany(persons: KpToMoviePersonDto[]): Promise<void> {
+    this.prisma.$transaction([
+      this.prisma.person.deleteMany({
+        where: {
+          kpId: {
+            in: persons.map((p) => p.kpId),
+          },
+        },
+      }),
+      this.prisma.person.createMany({ data: persons }),
+    ]);
   }
 }
